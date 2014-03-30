@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="CAD\Bundle\HushBundle\Entity\Messages" table="messages">
+    <indexes>
+      <index name="send_user_id" columns="send_user_id"/>
+      <index name="target_user_id" columns="target_user_id"/>
+    </indexes>
+    <id name="id" type="integer" column="id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="messageKey" type="string" column="message_key" length="256" nullable="false"/>
+    <field name="sentTime" type="datetime" column="sent_time" nullable="false"/>
+    <field name="messageContent" type="text" column="message_content" nullable="false"/>
+    <many-to-one field="targetUser" target-entity="Users">
+      <join-columns>
+        <join-column name="target_user_id" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="sendUser" target-entity="Users">
+      <join-columns>
+        <join-column name="send_user_id" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+  </entity>
+</doctrine-mapping>

@@ -20,7 +20,7 @@ CREATE TABLE user_relationship(
 	target_user_id INT NOT NULL,
 	FOREIGN KEY(target_user_id) REFERENCES users(id),
 	target_user_key VARCHAR(256) NOT NULL,
-	relationship_type ENUM('blocked', 'friend', 'requested') NOT NULL
+	relationship_type VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE ip_history(

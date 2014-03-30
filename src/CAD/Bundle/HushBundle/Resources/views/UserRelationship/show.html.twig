@@ -1,0 +1,44 @@
+{% extends '::base.html.twig' %}
+
+{% block body -%}
+    <h1>UserRelationship</h1>
+
+    <table class="record_properties">
+        <tbody>
+            <tr>
+                <th>Relationshipkey</th>
+                <td>{{ entity.relationshipKey }}</td>
+            </tr>
+            <tr>
+                <th>Creatoruserkey</th>
+                <td>{{ entity.creatorUserKey }}</td>
+            </tr>
+            <tr>
+                <th>Targetuserkey</th>
+                <td>{{ entity.targetUserKey }}</td>
+            </tr>
+            <tr>
+                <th>Relationshiptype</th>
+                <td>{{ entity.relationshipType }}</td>
+            </tr>
+            <tr>
+                <th>Id</th>
+                <td>{{ entity.id }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+        <ul class="record_actions">
+    <li>
+        <a href="{{ path('user_relationship') }}">
+            Back to the list
+        </a>
+    </li>
+    <li>
+        <a href="{{ path('user_relationship_edit', { 'id': entity.id }) }}">
+            Edit
+        </a>
+    </li>
+    <li>{{ form(delete_form) }}</li>
+</ul>
+{% endblock %}

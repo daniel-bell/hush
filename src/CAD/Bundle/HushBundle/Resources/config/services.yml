@@ -1,0 +1,7 @@
+parameters:
+#    hush.example.class: CAD\Bundle\HushBundle\Example
+
+services:
+#    hush.example:
+#        class: %hush.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

@@ -1,0 +1,4 @@
+hush:
+    resource: "@HushBundle/Resources/config/routing.yml"
+    prefix:   /
+
