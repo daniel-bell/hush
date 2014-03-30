@@ -1,3 +1,13 @@
 hush_homepage:
     pattern:  /hello/{name}
     defaults: { _controller: HushBundle:Default:index }
+
+_messages:
+    resource: "@HushBundle/Controller/MessagesController.php"
+    type:     annotation
+    prefix:   /
+
+_users:
+    resource: "@HushBundle/Controller/UsersController.php"
+    type:     annotation
+    prefix:   /
