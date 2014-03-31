@@ -4,6 +4,7 @@ namespace CAD\Bundle\HushBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -23,6 +24,36 @@ class MessagesController extends Controller
 {
 
     /**
+     * Get all messages
+     */
+    private function getAll() {
+
+        $em = $this->getDoctrine()->getManager();
+        $entities = $em->getRepository('HushBundle:Messages')->findAll();
+
+        return $entities;
+    }
+
+    /**
+     * Lists all Messages entities as a JSON array
+     *
+     * @Route(".json", name="messages_json")
+     * @Method("GET")
+     * @Template()
+     */
+    public function indexJsonAction()
+    {
+
+        $entities = $this->getAll();
+
+        $response = new JsonResponse();
+        $response->setData($entities);
+
+        return $response;
+
+    }
+
+    /**
      * Lists all Messages entities.
      *
      * @Route("/", name="messages")
@@ -31,9 +62,8 @@ class MessagesController extends Controller
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
 
-        $entities = $em->getRepository('HushBundle:Messages')->findAll();
+        $entities = $this->getAll();
 
         return array(
             'entities' => $entities,
@@ -113,20 +143,52 @@ class MessagesController extends Controller
     public function getLatestMessages($userId)
     {
 
-      $limit = 5;
+        // TODO: Get this as a param
+        $limit = 5;
 
-      $em = $this->getDoctrine()->getManager();
-      $entities = $em->getRepository('HushBundle:Messages')->findBy(
-        array('sendUser' => $userId), 
-        array('sentTime' => 'DESC'),
-        $limit
-      );
+        $em = $this->getDoctrine()->getManager();
+        $entities = $em->getRepository('HushBundle:Messages')->findBy(
+          array('sendUser' => $userId), 
+          array('sentTime' => 'DESC'),
+          $limit
+        );
 
-      $response = new Response();
-      $response->setContent(json_encode($entities));
-      $response->headers->set('Content-Type', 'application/json');
+        $response = new JsonResponse();
+        $response->setData($entities);
 
-      return $response;
+        return $response;
+    }
+
+    /**
+     * Get item with ID
+     */
+    private function getItem($id) {
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository('HushBundle:Messages')->find($id);
+
+        if (!$entity) {
+            throw $this->createNotFoundException('Unable to find Messages entity.');
+        }
+
+        return $entity;
+    }
+
+    /**
+     * Finds and displays a Messages entity in JSON
+     *
+     * @Route("/{id}.json", name="messages_show_json")
+     * @Method("GET")
+     * @Template()
+     */
+    public function showJsonAction($id) 
+    { 
+        $entity = $this->getItem($id);
+
+        $response = new JsonResponse();
+        $response->setData($entity);
+
+        return $response;
     }
 
     /**
@@ -138,14 +200,8 @@ class MessagesController extends Controller
      */
     public function showAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('HushBundle:Messages')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Messages entity.');
-        }
-
+        $entity = $this->getItem($id);
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
