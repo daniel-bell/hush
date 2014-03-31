@@ -1,25 +1,7 @@
-<!DOCTYPE html>
-<head>
-{% stylesheets 'css/*.css' %}
-	    <link rel="stylesheet" type="text/css" href="{{ asset_url }}" />
-{% endstylesheets %}
-</head>
-<body>
-	<div id="navbar">
-			<div class="grid">
-			<div class="unit one-of-five nav-title">
-				<h1>hush</h1>
-			</div>
-			<div class="unit four-of-five nav-items">
-					<ul>
-						<li><a href="#">Login</a></li>
-						<li><a href="#">Github</a></li>
-					</ul>
-			</div>
-			</div>
-		</div>
+{% extends 'HushBundle:Default:default.html.twig' %}
 
-	<div class="grid">
+{% block body %}
+<div class="grid">
 		<div class="unit span-grid landing-page">
 			<div class="unit one-of-two">
 				Stuff about hush
@@ -35,9 +17,4 @@
 			</div>
 		</div>
 	</div>
-
-	<footer>
-			Hush
-	</footer>
-</body>
-</html>
+{% endblock %}
