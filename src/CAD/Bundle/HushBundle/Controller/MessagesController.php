@@ -3,6 +3,10 @@
 namespace CAD\Bundle\HushBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -97,6 +101,32 @@ class MessagesController extends Controller
             'entity' => $entity,
             'form'   => $form->createView(),
         );
+    }
+
+    /**
+     * Get the latest messages sent to a user
+     *
+     * @Route("/{userId}/latest.json", name="get_latest_message")
+     * @Method("GET")
+     * @return JSON response of the latest id
+     */
+    public function getLatestMessages($userId)
+    {
+
+      $limit = 5;
+
+      $em = $this->getDoctrine()->getManager();
+      $entities = $em->getRepository('HushBundle:Messages')->findBy(
+        array('sendUser' => $userId), 
+        array('sentTime' => 'DESC'),
+        $limit
+      );
+
+      $response = new Response();
+      $response->setContent(json_encode($entities));
+      $response->headers->set('Content-Type', 'application/json');
+
+      return $response;
     }
 
     /**
@@ -244,4 +274,5 @@ class MessagesController extends Controller
             ->getForm()
         ;
     }
+
 }
