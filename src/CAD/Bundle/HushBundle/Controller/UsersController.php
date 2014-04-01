@@ -95,21 +95,6 @@ class UsersController extends Controller
     }
 
     /**
-     * Displays a form to create a new Users entity.
-     *
-     * @Route("/new", name="users_new")
-     * @Method("GET")
-     * @Template("HushBundle:Users:new.html.twig")
-     */
-    public function newAction()
-    {
-        $entity = new Users();
-        $form   = $this->createCreateForm($entity);
-
-        return $this->render('HushBundle:Default:register.html.twig', array('form' => $form->createView()));
-    }
-
-    /**
      * Finds and displays a Users entity.
      *
      * @Route("/{id}", name="users_show")
