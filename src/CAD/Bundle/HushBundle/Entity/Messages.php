@@ -2,6 +2,7 @@
 
 namespace CAD\Bundle\HushBundle\Entity;
 
+use JSONSerializable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="messages", indexes={@ORM\Index(name="send_user_id", columns={"send_user_id"}), @ORM\Index(name="target_user_id", columns={"target_user_id"})})
  * @ORM\Entity
  */
-class Messages
+class Messages implements JSONSerializable
 {
     /**
      * @var string
@@ -187,5 +188,16 @@ class Messages
     public function getSendUser()
     {
         return $this->sendUser;
+    }
+
+    public function jsonSerialize()
+    {
+      return array(
+        'sentTime' => $this->getSentTime(),
+        'messageContent' => $this->getMessageContent(),
+        // TODO: Add getUsername
+        'targetUsername' => $this->getTargetUser(),
+        'sendUsername' => $this->getSendUser()->getUserName()
+      );
     }
 }
