@@ -16,6 +16,16 @@
 	padding-left:15px;
 }
 
+.nav-title h1 a{
+	color:#fff;
+	text-decoration: none;
+}
+
+.nav-title h1 a:hover{
+	color:#fefefe;
+	text-decoration: underline;
+}
+
 .nav-items{
 	float:right;
 }
