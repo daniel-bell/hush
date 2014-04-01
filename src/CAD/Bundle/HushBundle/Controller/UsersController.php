@@ -40,7 +40,7 @@ class UsersController extends Controller
      *
      * @Route("/", name="users_create")
      * @Method("POST")
-     * @Template("HushBundle:Users:new.html.twig")
+     * @Template("HushBundle:Default:index.html.twig")
      */
     public function createAction(Request $request)
     {
@@ -50,6 +50,19 @@ class UsersController extends Controller
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
+
+            // Get the password encoder from the security.yml
+            $factory = $this->get('security.encoder_factory');
+            $encoder = $factory->getEncoder($entity);
+
+            // Generate a random salt and hash the password with it
+            $salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
+            $password = $encoder->encodePassword($entity->getPassword(), $salt);
+
+            // Replace plaintext password and blank salt
+            $entity->setPassword($password);
+            $entity->setSalt($salt);
+
             $em->persist($entity);
             $em->flush();
 
@@ -76,7 +89,7 @@ class UsersController extends Controller
             'method' => 'POST',
         ));
 
-        $form->add('submit', 'submit', array('label' => 'Create'));
+        $form->add('submit', 'submit', array('label' => 'Register'));
 
         return $form;
     }
@@ -86,17 +99,14 @@ class UsersController extends Controller
      *
      * @Route("/new", name="users_new")
      * @Method("GET")
-     * @Template()
+     * @Template("HushBundle:Users:new.html.twig")
      */
     public function newAction()
     {
         $entity = new Users();
         $form   = $this->createCreateForm($entity);
 
-        return array(
-            'entity' => $entity,
-            'form'   => $form->createView(),
-        );
+        return $this->render('HushBundle:Default:register.html.twig', array('form' => $form->createView()));
     }
 
     /**

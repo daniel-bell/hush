@@ -3,6 +3,7 @@
 namespace CAD\Bundle\HushBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Users
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="users")
  * @ORM\Entity
  */
-class Users
+class Users implements UserInterface
 {
     /**
      * @var string
@@ -31,7 +32,7 @@ class Users
      *
      * @ORM\Column(name="password_hash", type="string", length=256, nullable=false)
      */
-    private $passwordHash;
+    private $password;
 
     /**
      * @var string
@@ -119,26 +120,36 @@ class Users
     }
 
     /**
-     * Set passwordHash
+     * Get roles
+      *
+      * @return array
+    */
+    public function getRoles()
+    {
+        return array('ROLE_USER');
+    } 
+
+    /**
+     * Set password
      *
-     * @param string $passwordHash
+     * @param string $password
      * @return Users
      */
-    public function setPasswordHash($passwordHash)
+    public function setpassword($password)
     {
-        $this->passwordHash = $passwordHash;
+        $this->password = $password;
 
         return $this;
     }
 
     /**
-     * Get passwordHash
+     * Get password
      *
      * @return string 
      */
-    public function getPasswordHash()
+    public function getpassword()
     {
-        return $this->passwordHash;
+        return $this->password;
     }
 
     /**
@@ -241,5 +252,17 @@ class Users
     public function getId()
     {
         return $this->id;
+    }
+
+    public function eraseCredentials(){
+    }
+
+    public function equals(UserInterface $user) {
+        if($this->id == $user->id){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
