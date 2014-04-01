@@ -21,3 +21,9 @@ _users:
     resource: "@HushBundle/Controller/UsersController.php"
     type:     annotation
     prefix:   /
+
+chat:
+    path: /chat
+    defaults: 
+        _controller: FrameworkBundle:Template:template
+        template: "HushBundle:Static:chat.php.twig" 

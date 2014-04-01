@@ -1,0 +1,21 @@
+{% extends '::base.html.twig' %}
+
+{% block body -%}
+    <h1>Chat</h1>
+    <div id="friends">
+
+    </div>
+    <div id="chat">
+
+        <div id="chat-list">
+
+        </div>
+
+        <div id="chat-controls">
+            <input type="text" value="" name="chat-text" />
+            <input type="button" value="Send" />
+        </div>
+    </div>
+
+    <script type="text/javascript" src="/js/chat.js"></script>
+{% endblock %}
