@@ -4,8 +4,9 @@ namespace CAD\Bundle\HushBundle\Entity;
 
 use JSONSerializable;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Users
@@ -19,6 +20,13 @@ class Users implements UserInterface, JSONSerializable
      * @var string
      *
      * @ORM\Column(name="username", type="string", length=256, nullable=false)
+     * @Assert\Length(
+     *      min = "3",
+     *      max = "24",
+     *      minMessage = "Your first name must be at least {{ limit }} characters length",
+     *      maxMessage = "Your first name cannot be longer than {{ limit }} characters length"
+     * )
+     * @Assert\Regex("^[a-zA-Z0-9]*$")
      */
     private $username;
 
@@ -26,6 +34,10 @@ class Users implements UserInterface, JSONSerializable
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=256, nullable=true)
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true
+     * )
      */
     private $email;
 
@@ -33,6 +45,10 @@ class Users implements UserInterface, JSONSerializable
      * @var string
      *
      * @ORM\Column(name="password_hash", type="string", length=256, nullable=false)
+     * @Assert\Length(
+     *       min = "10"
+     *       minMessage = 'Your password must be at least {{ limit }} characters length",
+     * )
      */
     private $password;
 
@@ -77,6 +93,8 @@ class Users implements UserInterface, JSONSerializable
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
+
+
 
     /**
      * Set username
@@ -284,5 +302,9 @@ class Users implements UserInterface, JSONSerializable
         'id' => $this->getId(),
         'username' => $this->getUsername()
       );
+	}
+
+    public function __toString(){
+        return $this->username;
     }
 }
