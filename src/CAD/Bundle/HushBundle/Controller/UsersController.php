@@ -68,7 +68,9 @@ class UsersController extends Controller
             $em->persist($entity);
             $em->flush();
 
-            return $this->redirect($this->generateUrl('users_show', array('id' => $entity->getId())));
+            $this->get('session')->getFlashBag()->add('notice','Your account has been created, you many now log in.');
+
+            return $this->redirect($this->generateUrl('hush_homepage'));
         }
 
         return array(
