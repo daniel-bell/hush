@@ -2,6 +2,7 @@
 
 namespace CAD\Bundle\HushBundle\Entity;
 
+use JSONSerializable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -12,7 +13,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\Table(name="users")
  * @ORM\Entity
  */
-class Users implements UserInterface
+class Users implements UserInterface, JSONSerializable
 {
     /**
      * @var string
@@ -276,5 +277,12 @@ class Users implements UserInterface
         else{
             return false;
         }
+    }
+
+    public function JSONSerialize() {
+      return array( 
+        'id' => $this->getId(),
+        'username' => $this->getUsername()
+      );
     }
 }
