@@ -62,7 +62,7 @@ class UserRelationship
     /**
      * @var \CAD\Bundle\HushBundle\Entity\Users
      *
-     * @ORM\ManyToOne(targetEntity="CAD\Bundle\HushBundle\Entity\Users")
+     * @ORM\ManyToOne(targetEntity="CAD\Bundle\HushBundle\Entity\Users", inversedBy="user_relationships)
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="creator_user_id", referencedColumnName="id")
      * })
