@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * UserRelationship
  *
- * @ORM\Table(name="user_relationship", indexes={@ORM\Index(name="creator_user_id", columns={"creator_user_id"}), @ORM\Index(name="target_user_id", columns={"target_user_id"})})
+ * @ORM\Table(name="relationships")})
  * @ORM\Entity
  */
 class UserRelationship implements JSONSerializable
@@ -49,21 +49,6 @@ class UserRelationship implements JSONSerializable
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
-
-    /**
-     * @var \CAD\Bundle\HushBundle\Entity\Users
-     *
-     * @ORM\ManyToOne(targetEntity="CAD\Bundle\HushBundle\Entity\Users")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="target_user_id", referencedColumnName="id")
-     * })
-     */
-    private $targetUser;
-
-    /**
-     * @var \CAD\Bundle\HushBundle\Entity\Users
-     */
-    private $creatorUser;
 
     /**
      * Set relationshipKey
