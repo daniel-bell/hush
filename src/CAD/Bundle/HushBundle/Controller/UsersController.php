@@ -3,6 +3,7 @@
 namespace CAD\Bundle\HushBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -117,6 +118,30 @@ class UsersController extends Controller
             'entity'      => $entity,
             'delete_form' => $deleteForm->createView(),
         );
+    }
+
+    /**
+     * Get the users relationships
+     * @Route("/{id}/relationships", name="users_relationships")
+     * @Method("GET")
+     * @Template()
+     */
+    public function relationshipsAction($id) {
+
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository('HushBundle:Users')->find($id);
+
+        $user = $em->getRepository('HushBundle:UserRelationship')->find(1);
+        echo("User of Key: ". $user->getCreatorUser()->getId() . "\n");
+
+        $relationships = $entity->getRelationships();
+        echo("Entity: ". $relationships . "\n");
+
+        $response = new JsonResponse();
+        $response->setData($relationships);
+
+        return $response;
     }
 
     /**

@@ -4,6 +4,7 @@ namespace CAD\Bundle\HushBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Users
@@ -63,6 +64,14 @@ class Users implements UserInterface
     private $lastActivity;
 
     /**
+     * @ORM\OneToMany(targetEntity="CAD\Bundle\HushBundle\Entity\UserRelationship", mappedBy="creatorUser)
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="id", referencedColumnName="creator_user_id")
+     * })
+     */
+    private $user_relationships;
+
+    /**
      * @var integer
      *
      * @ORM\Column(name="id", type="integer")
@@ -72,6 +81,9 @@ class Users implements UserInterface
     private $id;
 
 
+    public function __construct() {
+        $this->user_relationships = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     /**
      * Set username
@@ -242,6 +254,14 @@ class Users implements UserInterface
     public function getLastActivity()
     {
         return $this->lastActivity;
+    }
+
+    /**
+     * Get the relationships for a user
+     */
+    public function getRelationships() {
+
+      return $this->user_relationships;
     }
 
     /**
