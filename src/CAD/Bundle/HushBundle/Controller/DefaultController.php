@@ -10,6 +10,10 @@ class DefaultController extends Controller
 {
     public function indexAction()
     {
+        if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
+            return $this->redirect($this->generateUrl('chat'));
+        }
+
     	$entity = new Users();
         $register_form   = $this->createRegisterForm($entity);
 
