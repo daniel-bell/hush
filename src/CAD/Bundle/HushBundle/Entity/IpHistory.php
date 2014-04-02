@@ -3,6 +3,7 @@
 namespace CAD\Bundle\HushBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * IpHistory
@@ -16,6 +17,9 @@ class IpHistory
      * @var integer
      *
      * @ORM\Column(name="ip", type="integer", nullable=false)
+     *
+     * @Assert\NotBlank()
+     * @Assert\Ip
      */
     private $ip;
 

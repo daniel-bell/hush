@@ -4,6 +4,7 @@ namespace CAD\Bundle\HushBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Users
@@ -17,6 +18,13 @@ class Users implements UserInterface
      * @var string
      *
      * @ORM\Column(name="username", type="string", length=256, nullable=false)
+     * @Assert\Length(
+     *      min = "3",
+     *      max = "24",
+     *      minMessage = "Your first name must be at least {{ limit }} characters length",
+     *      maxMessage = "Your first name cannot be longer than {{ limit }} characters length"
+     * )
+     * @Assert\Regex("^[a-zA-Z0-9]*$")
      */
     private $username;
 
@@ -24,6 +32,10 @@ class Users implements UserInterface
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=256, nullable=true)
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true
+     * )
      */
     private $email;
 
@@ -31,6 +43,10 @@ class Users implements UserInterface
      * @var string
      *
      * @ORM\Column(name="password_hash", type="string", length=256, nullable=false)
+     * @Assert\Length(
+     *       min = "10"
+     *       minMessage = 'Your password must be at least {{ limit }} characters length",
+     * )
      */
     private $password;
 
