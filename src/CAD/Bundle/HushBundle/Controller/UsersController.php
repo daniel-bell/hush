@@ -3,6 +3,8 @@
 namespace CAD\Bundle\HushBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -119,6 +121,34 @@ class UsersController extends Controller
             'entity'      => $entity,
             'delete_form' => $deleteForm->createView(),
         );
+    }
+
+    /**
+     * Get the users relationships
+     * @Route("/{id}/relationships", name="users_relationships")
+     * @Method("GET")
+     * @Template()
+     */
+    public function relationshipsAction($id) {
+
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository('HushBundle:Users')->find($id);
+
+        $user = $em->getRepository('HushBundle:UserRelationship')->find(1);
+        $relationships = $entity->getRelationships();
+
+        $formattedRelationships = array_map("json_encode", $relationships->toArray());
+
+        // The serializer was getting in the way
+        $formattedJson = implode($formattedRelationships, "");
+        $formattedJson = '[' . $formattedJson . ']';
+
+        $response = new Response();
+        $response->setContent($formattedJson);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 
     /**

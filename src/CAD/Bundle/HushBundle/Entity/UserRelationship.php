@@ -2,6 +2,7 @@
 
 namespace CAD\Bundle\HushBundle\Entity;
 
+use JSONSerializable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="user_relationship", indexes={@ORM\Index(name="creator_user_id", columns={"creator_user_id"}), @ORM\Index(name="target_user_id", columns={"target_user_id"})})
  * @ORM\Entity
  */
-class UserRelationship
+class UserRelationship implements JSONSerializable
 {
     /**
      * @var string
@@ -61,15 +62,8 @@ class UserRelationship
 
     /**
      * @var \CAD\Bundle\HushBundle\Entity\Users
-     *
-     * @ORM\ManyToOne(targetEntity="CAD\Bundle\HushBundle\Entity\Users")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="creator_user_id", referencedColumnName="id")
-     * })
      */
     private $creatorUser;
-
-
 
     /**
      * Set relationshipKey
@@ -217,5 +211,14 @@ class UserRelationship
     public function getCreatorUser()
     {
         return $this->creatorUser;
+    }
+
+    public function JSONSerialize() {
+      return array( 
+        'id' => $this->getId(),
+        'creator_user' => $this->getCreatorUser(),
+        'target_user' => $this->getTargetUser(),
+        'relationship_type' => $this->getRelationshipType()
+      );
     }
 }

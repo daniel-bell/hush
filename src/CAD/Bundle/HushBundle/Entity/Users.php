@@ -2,8 +2,11 @@
 
 namespace CAD\Bundle\HushBundle\Entity;
 
+use JSONSerializable;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Users
@@ -11,12 +14,19 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(name="users")
  * @ORM\Entity
  */
-class Users implements UserInterface
+class Users implements UserInterface, JSONSerializable
 {
     /**
      * @var string
      *
      * @ORM\Column(name="username", type="string", length=256, nullable=false)
+     * @Assert\Length(
+     *      min = "3",
+     *      max = "24",
+     *      minMessage = "Your first name must be at least {{ limit }} characters length",
+     *      maxMessage = "Your first name cannot be longer than {{ limit }} characters length"
+     * )
+     * @Assert\Regex("^[a-zA-Z0-9]*$")
      */
     private $username;
 
@@ -24,6 +34,10 @@ class Users implements UserInterface
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=256, nullable=true)
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true
+     * )
      */
     private $email;
 
@@ -31,6 +45,10 @@ class Users implements UserInterface
      * @var string
      *
      * @ORM\Column(name="password_hash", type="string", length=256, nullable=false)
+     * @Assert\Length(
+     *       min = "10"
+     *       minMessage = 'Your password must be at least {{ limit }} characters length",
+     * )
      */
     private $password;
 
@@ -61,6 +79,11 @@ class Users implements UserInterface
      * @ORM\Column(name="last_activity", type="datetime", nullable=true)
      */
     private $lastActivity;
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection<\HushBundle\Entity\UserRelationship>
+     */
+    private $userRelationships;
 
     /**
      * @var integer
@@ -245,6 +268,14 @@ class Users implements UserInterface
     }
 
     /**
+     * Get the relationships for a user
+     */
+    public function getRelationships() {
+
+      return $this->userRelationships;
+    }
+
+    /**
      * Get id
      *
      * @return integer 
@@ -265,6 +296,13 @@ class Users implements UserInterface
             return false;
         }
     }
+
+    public function JSONSerialize() {
+      return array( 
+        'id' => $this->getId(),
+        'username' => $this->getUsername()
+      );
+	}
 
     public function __toString(){
         return $this->username;

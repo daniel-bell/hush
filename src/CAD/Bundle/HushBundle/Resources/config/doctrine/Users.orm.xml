@@ -11,5 +11,10 @@
     <field name="avatarFilePath" type="string" column="avatar_file_path" length="256" nullable="true"/>
     <field name="locked" type="datetime" column="locked" nullable="true"/>
     <field name="lastActivity" type="datetime" column="last_activity" nullable="true"/>
+    <one-to-many field="userRelationships" target-entity="UserRelationship" mapped-by="creatorUser">
+             <join-columns>
+                 <join-column name="id"  referenced-column-name="creator_user" />
+            </join-columns>
+    </one-to-many>
   </entity>
 </doctrine-mapping>
