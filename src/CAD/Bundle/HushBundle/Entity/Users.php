@@ -64,12 +64,9 @@ class Users implements UserInterface
     private $lastActivity;
 
     /**
-     * @ORM\OneToMany(targetEntity="CAD\Bundle\HushBundle\Entity\UserRelationship", mappedBy="creatorUser)
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="id", referencedColumnName="creator_user_id")
-     * })
+     * @var \Doctrine\Common\Collections\Collection<\HushBundle\Entity\UserRelationship>
      */
-    private $user_relationships;
+    private $userRelationships;
 
     /**
      * @var integer
@@ -79,11 +76,6 @@ class Users implements UserInterface
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
-
-
-    public function __construct() {
-        $this->user_relationships = new \Doctrine\Common\Collections\ArrayCollection();
-    }
 
     /**
      * Set username
@@ -261,7 +253,7 @@ class Users implements UserInterface
      */
     public function getRelationships() {
 
-      return $this->user_relationships;
+      return $this->userRelationships;
     }
 
     /**
