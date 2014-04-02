@@ -216,8 +216,8 @@ class UserRelationship implements JSONSerializable
     public function JSONSerialize() {
       return array( 
         'id' => $this->getId(),
-        'creator_user_id' => $this->getCreatorUser(),
-        'target_user_id' => $this->getTargetUser(),
+        'creator_user' => $this->getCreatorUser(),
+        'target_user' => $this->getTargetUser(),
         'relationship_type' => $this->getRelationshipType()
       );
     }
