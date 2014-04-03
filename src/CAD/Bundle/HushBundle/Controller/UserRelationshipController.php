@@ -58,7 +58,7 @@ class UserRelationshipController extends Controller
     /**
      * Creates a new UserRelationship entity.
      *
-     * @Route("/", name="user_relationship_create")
+     * @Route("/new", name="user_relationship_create")
      * @Method("POST")
      */
     public function createAction(Request $request)
@@ -85,6 +85,9 @@ class UserRelationshipController extends Controller
 
                 $new_rel->addUser($source_user);
                 $new_rel->addUser($target_user);
+
+                $new_rel->setCreatorKey("creatorkey");
+                $new_rel->setTargetKey("unset");
 
                 $new_rel->setRelationshipType($relationship_type);
 
