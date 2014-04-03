@@ -30,12 +30,10 @@ class UserRelationshipController extends Controller
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
-        $qb = $em->createQueryBuilder();
-
+        $repo = $this->getDoctrine()->getRepository('HushBundle:UserRelationship');
         $curr_user = $this->get('security.context')->getToken()->getUser();
 
-        $query = $qb->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users');
+        $$query = $repo->createQueryBuilder('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users')->getQuery();
         $query->setParameter('user_id', $curr_user->getId());
         $entities = $query->getResult();
 
@@ -127,7 +125,7 @@ class UserRelationshipController extends Controller
             if($entity->getRelationshipType() == "FRIEND_REQUEST"){
                 if(in_array($curr_user, $entity->getUsers())){
                     if($curr_user != $entity->getCreator()){
-                        $entity->setRelationshipType("FRIEND_CONFIRMED");
+                        $entity->setRelationshipType("new");
                         $em->flush();
                     }
                 }
