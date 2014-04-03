@@ -36,7 +36,7 @@ footer
 }
 
 .nav-title h1 a:hover{
-	color:#fefefe;
+	color:#29c673;
 	text-decoration: underline;
 }
 
@@ -288,4 +288,11 @@ input[type=text]:focus,input[type=password]:focus,input[type=email]:focus
     margin:0;
     color:#333;
     box-shadow:0 3px 0 0 #27ae60;
+}
+
+
+label {
+    clear: left;
+    float: left;
+    width: 7em; /* or whatever length suits */
 }
