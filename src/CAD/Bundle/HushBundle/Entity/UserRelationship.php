@@ -13,6 +13,12 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UserRelationship implements JSONSerializable
 {
+    // ...
+    /**
+     * @ORM\ManyToMany(targetEntity="Users", mappedBy="users")
+     */
+    private $users;
+
     /**
      * @var string
      *
