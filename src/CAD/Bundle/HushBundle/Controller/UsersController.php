@@ -140,13 +140,15 @@ class UsersController extends Controller
 
         $entity = $em->getRepository('HushBundle:Users')->find($id);
 
-        $user = $em->getRepository('HushBundle:UserRelationship')->find(1);
         $relationships = $entity->getRelationships();
 
+        var_dump($relationships->toArray());
         $formattedRelationships = array_map("json_encode", $relationships->toArray());
+
 
         // The serializer was getting in the way
         $formattedJson = implode($formattedRelationships, "");
+        echo($formattedJson . "\n");
         $formattedJson = '[' . $formattedJson . ']';
 
         $response = new Response();
