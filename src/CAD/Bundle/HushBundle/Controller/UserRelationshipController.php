@@ -67,54 +67,65 @@ class UserRelationshipController extends Controller
      */
     public function createAction(Request $request)
     {
-        $logger = $this->get('logger');
-        $new_rel = new UserRelationship();
         
-        $params = $request->request->get("json_str");
-        $params = stripslashes($params);
-        $relation_params = json_decode(trim($params, '"'));
-        unset($params);
-        $em = $this->getDoctrine()->getManager();
+        if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
 
-        // Check that there's a valid relationship type
-        $relationship_type = 'FRIEND_REQUEST';
-        $target_username = $relation_params->target_username;
+            $new_rel = new UserRelationship();
+            
+            $params = $request->request->get("json_str");
+            $params = stripslashes($params);
+            $relation_params = json_decode(trim($params, '"'));
+            unset($params);
+            $em = $this->getDoctrine()->getManager();
 
-            $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findBy(array('username' => $target_username));
+            // Check that there's a valid relationship type
+            $relationship_type = 'FRIEND_REQUEST';
+            $target_username = $relation_params->target_username;
 
-            if(!empty($target_user)){
-                $source_user = $this->get('security.context')->getToken()->getUser();
+                $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findBy(array('username' => $target_username));
 
-                $new_rel->setCreatorUser($source_user);
+                if(!empty($target_user)){
+                    $source_user = $this->get('security.context')->getToken()->getUser();
 
-                $new_rel->setCreatorUserKey("creatorkey");
-                $new_rel->setTargetUserKey("unset");
+                    $new_rel->setCreatorUser($source_user);
 
-                $new_rel->setRelationshipType($relationship_type);
-                $new_rel->setRelationshipKey("default");
+                    $new_rel->setCreatorUserKey("creatorkey");
+                    $new_rel->setTargetUserKey("unset");
 
-                $new_rel->addUser($source_user);
-                $new_rel->addUser($target_user[0]);
+                    $new_rel->setRelationshipType($relationship_type);
+                    $new_rel->setRelationshipKey("default");
 
-                $em->persist($new_rel);
-                $em->flush();
+                    $new_rel->addUser($source_user);
+                    $new_rel->addUser($target_user[0]);
 
-                // Everything is golden, respond with 200
-                $response = new Response(
-                    'Content',
-                    Response::HTTP_OK,
-                    array('content-type' => 'text/html')
-                );
+                    $em->persist($new_rel);
+                    $em->flush();
 
-                return $response;
-            }
+                    // Everything is golden, respond with 200
+                    $response = new Response(
+                        'Content',
+                        Response::HTTP_OK,
+                        array('content-type' => 'text/json')
+                    );
 
-        // Something has gone wrong, respond with error
-        $response = new Response(
-            'No user with that name',
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            array('content-type' => 'text/html')
-        );
+                    return $response;
+                }
+
+
+            // Something has gone wrong, respond with error
+            $response = new Response(
+                'No user with that name',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                array('content-type' => 'text/json')
+            );
+        }
+        else{
+            $response = new Response(
+                'No user with that name',
+                Response::HTTP_FORBIDDEN,
+                array('content-type' => 'text/json')
+            );
+        }
 
         return $response;
     }

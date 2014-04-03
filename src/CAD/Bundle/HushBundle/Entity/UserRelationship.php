@@ -18,9 +18,20 @@ class UserRelationship implements JSONSerializable
 {
     /**
      * @ORM\ManyToMany(targetEntity="Users")
-     * @ORM\JoinTable(name="user_relationships")
+     * @ORM\JoinTable(name="user_relationship")
      */
     private $users;
+
+
+    /**
+     * @var \CAD\Bundle\HushBundle\Entity\Users
+     *
+     * @ORM\ManyToOne(targetEntity="CAD\Bundle\HushBundle\Entity\Users")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="creator_user_id", referencedColumnName="id")
+     * })
+     */
+    private $creator_user;
 
     /**
      * @var string
