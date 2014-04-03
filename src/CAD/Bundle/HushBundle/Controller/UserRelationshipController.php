@@ -3,6 +3,9 @@
 namespace CAD\Bundle\HushBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -44,21 +47,46 @@ class UserRelationshipController extends Controller
      */
     public function createAction(Request $request)
     {
-        $entity = new UserRelationship();
-        $form = $this->createCreateForm($entity);
-        $form->handleRequest($request);
+        $new_rel = new UserRelationship();
+        
+        $params = $request->request->get("json_str");
+        $params = stripslashes($params);
+        $relation_params = json_decode(trim($params, '"'));
+        unset($params);
+        $em = $this->getDoctrine()->getManager();
 
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($entity);
-            $em->flush();
+        // Check that there's a valid relationship type
+        $relationship_type = $relation_params->type;
+        if($relationship_type == 'FRIEND_REQUEST' || $relationship_type != 'BLOCK'){
+            $target_username = $relation_params->target_user;
+            $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findBy(array('username' => $target_username));
+            
 
-            return $this->redirect($this->generateUrl('user_relationship_show', array('id' => $entity->getId())));
+            if(!empty($target_user)){
+                $source_user = $this->get('security.context')->getToken()->getUser();
+
+                $new_rel->addUser($source_user);
+                $new_rel->addUser($target_user);
+
+                $new_rel->setRelationshipType($relationship_type);
+
+                $new_rel->persist($entity);
+                $new_rel->flush();
+
+                // Everything is golden, respond with 200
+                $response = new Response(
+                    'Content',
+                    Response::HTTP_OK,
+                    array('content-type' => 'text/html')
+                );
+            }
         }
 
-        return array(
-            'entity' => $entity,
-            'form'   => $form->createView(),
+        // Something has gone wrong, respond with error
+        $response = new Response(
+            'Content',
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            array('content-type' => 'text/html')
         );
     }
 
