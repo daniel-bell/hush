@@ -38,12 +38,22 @@ class UserRelationshipController extends Controller
             'entities' => $entities,
         );
     }
+
+    public function indexJsonAction()
+    {
+
+        $entities = $this->getAll();
+
+        $response = new JsonResponse();
+        $response->setData($entities);
+
+        return $response;
+    }
     /**
      * Creates a new UserRelationship entity.
      *
      * @Route("/", name="user_relationship_create")
      * @Method("POST")
-     * @Template("HushBundle:UserRelationship:new.html.twig")
      */
     public function createAction(Request $request)
     {
@@ -88,6 +98,16 @@ class UserRelationshipController extends Controller
             Response::HTTP_INTERNAL_SERVER_ERROR,
             array('content-type' => 'text/html')
         );
+    }
+
+    /**
+     * Creates a new UserRelationship entity.
+     *
+     * @Route("/confirm/{id}", name="user_relationship_create")
+     * @Method("POST")
+     */
+    public functionConfirmAction($id){
+        
     }
 
     /**

@@ -16,11 +16,22 @@ class UserRelationship implements JSONSerializable
 
     /**
      * @ORM\ManyToMany(targetEntity="Users")
-     * @ORM\JoinTable(name="user_relationships",
+     * @ORM\JoinTable(name="user_relationships_users",
      * joinColumns={@ORM\JoinColumn(name="relationship_id", referencedColumnName="id")},
      * inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")})
      */
     private $users;
+
+
+    /**
+     * @var \CAD\Bundle\HushBundle\Entity\Users
+     *
+     * @ORM\ManyToOne(targetEntity="CAD\Bundle\HushBundle\Entity\Users")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="creator_user_id", referencedColumnName="id")
+     * })
+     */
+    private $creator_user;
 
     /**
      * @var string
@@ -166,6 +177,26 @@ class UserRelationship implements JSONSerializable
      */
     public function getUsers() {
         return $this->users;
+    }
+
+    /**
+     * Get creator user
+     *
+     * @return Users
+     */
+    public function getCreator()
+    {
+        return $this->creator_user;
+    }
+
+
+    /**
+     * Set creator user
+     *
+     */
+    public function setCreator($user)
+    {
+        $this->creator_user = $user;
     }
 
     /**

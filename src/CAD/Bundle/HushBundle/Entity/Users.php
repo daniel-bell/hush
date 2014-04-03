@@ -98,8 +98,6 @@ class Users implements UserInterface, JSONSerializable
      */
     private $id;
 
-
-
     /**
      * Set username
      *
