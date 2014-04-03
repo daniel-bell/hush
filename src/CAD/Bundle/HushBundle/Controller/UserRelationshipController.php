@@ -31,12 +31,18 @@ class UserRelationshipController extends Controller
     public function indexAction()
     {
         $em = $this->getDoctrine()->getManager();
+        $qb = $em->createQueryBuilder();
 
-        $entities = $em->getRepository('HushBundle:UserRelationship')->findAll();
+        $curr_user = $this->get('security.context')->getToken()->getUser();
 
-        return array(
-            'entities' => $entities,
-        );
+        $query = $qb->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users');
+        $query->setParameter('user_id', $curr_user->getId());
+        $entities = $query->getResult();
+
+        $response = new JsonResponse();
+        $response->setData($entities);
+
+        return $response;
     }
 
     public function indexJsonAction()
