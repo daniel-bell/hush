@@ -4,6 +4,9 @@ namespace CAD\Bundle\HushBundle\Entity;
 
 use JSONSerializable;
 use Doctrine\ORM\Mapping as ORM;
+use CAD\Bundle\HushBundle\Entity\Users;
+use JMS\Serializer\Annotation\Type;
+use JMS\Serializer\nnotation\Expose;
 
 /**
  * UserRelationship
@@ -13,12 +16,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UserRelationship implements JSONSerializable
 {
-
     /**
-     * @ORM\ManyToMany(targetEntity="Users")
-     * @ORM\JoinTable(name="user_relationships_users",
-     * joinColumns={@ORM\JoinColumn(name="relationship_id", referencedColumnName="id")},
-     * inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")})
+     * @ORM\ManyToMany(targetEntity="Users", mappedBy="userRelationships")
      */
     private $users;
 

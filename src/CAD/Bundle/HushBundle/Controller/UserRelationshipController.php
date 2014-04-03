@@ -12,11 +12,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CAD\Bundle\HushBundle\Entity\UserRelationship;
 use CAD\Bundle\HushBundle\Form\UserRelationshipType;
-
+use JMS\SerializerBundle\Annotation\ExclusionPolicy;
+use JMS\SerializerBundle\Annotation\Exclude;
 /**
  * UserRelationship controller.
  *
  * @Route("/user_relationship")
+ * @ExclusionPolicy("none")
+ *
  */
 class UserRelationshipController extends Controller
 {
@@ -37,8 +40,11 @@ class UserRelationshipController extends Controller
         $query->setParameter('user_id', $curr_user->getId());
         $entities = $query->getResult();
 
+        $serializer = $this->container->get('serializer');
+        $json_content = $serializer->serialize($entities, 'json');
+
         $response = new JsonResponse();
-        $response->setData($entities);
+        $response->setContent(utf8_decode($json_content));
 
         return $response;
     }
@@ -71,7 +77,7 @@ class UserRelationshipController extends Controller
 
         // Check that there's a valid relationship type
         $relationship_type = $relation_params->type;
-        if($relationship_type == 'FRIEND_REQUEST' || $relationship_type != 'BLOCK'){
+        if($relationship_type == 'FRIEND_REQUEST'){
             $target_username = $relation_params->target_user;
             $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findBy(array('username' => $target_username));
             
@@ -125,7 +131,7 @@ class UserRelationshipController extends Controller
             if($entity->getRelationshipType() == "FRIEND_REQUEST"){
                 if(in_array($curr_user, $entity->getUsers())){
                     if($curr_user != $entity->getCreator()){
-                        $entity->setRelationshipType("new");
+                        $entity->setRelationshipType("FRIEND_CONFIRMED");
                         $em->flush();
                     }
                 }
