@@ -188,7 +188,7 @@ class MessagesController extends Controller
         }
 
         // This limit could become a problem
-        $limit = 10;
+        $limit = 50;
 
         $entities = $em->getRepository('HushBundle:Messages')->findBy(
           array(

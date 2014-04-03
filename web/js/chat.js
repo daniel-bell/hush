@@ -25,6 +25,7 @@ function addFriendListener() {
                 this.setAttribute('class', "active");
                 user_id = parseInt(this.getAttribute('user-id'));
                 activeTarget = user_id;
+                fetchLatestMessages();
             });
         }
     }
@@ -40,6 +41,10 @@ function fetchLatestMessages() {
             var messages = JSON.parse(response);
 
             var chat_message = document.getElementById("chat-list");
+
+            // Reset the chat
+            chat_message.innerHTML = "";
+            messageList = [];
 
             for (var i in messages) {
                 // Only add new messages
