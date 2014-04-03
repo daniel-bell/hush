@@ -158,9 +158,45 @@ function sendMessage() {
     }
 }
 
+function addFriend(){
+  console.log("Add friend");
+
+  var form, friend_box, friend_name, xmlHttp, params;
+
+  form = document.getElementById("add-friend").children[0];
+  friend_box = form.elements["friend-name"];
+
+  friend_name = friend_box.value;
+
+  console.log(friend_name)
+
+  if (friend_name != "") {
+      xmlHttp = new XMLHttpRequest();
+      xmlHttp.open('POST', '/user_relationship/new', true);
+      xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+
+      params = {
+           "target_username": friend_name
+       }
+
+       xmlHttp.onreadystatechange = function() {
+          console.log(xmlHttp.status);
+          var response = xmlHttp.responseText;
+          console.log(response);
+       }
+
+       params = "json_str=" + JSON.stringify(params);
+       xmlHttp.send(params);
+
+       friend_box.value = "";
+  }
+}
+
 /**
  * Globally setup some listeners
  */
 var chat_form = document.getElementById('send-messages').elements[1];
-
 chat_form.addEventListener('click', sendMessage);
+
+var friend_form = document.getElementById('add-friend-form').elements[1];
+friend_form.addEventListener('click', addFriend);
