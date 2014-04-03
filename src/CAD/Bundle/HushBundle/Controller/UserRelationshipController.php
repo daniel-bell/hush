@@ -67,6 +67,7 @@ class UserRelationshipController extends Controller
      */
     public function createAction(Request $request)
     {
+        $logger = $this->get('logger');
         $new_rel = new UserRelationship();
         
         $params = $request->request->get("json_str");
@@ -76,27 +77,27 @@ class UserRelationshipController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         // Check that there's a valid relationship type
-        $relationship_type = $relation_params->type;
-        if($relationship_type == 'FRIEND_REQUEST'){
-            $target_username = $relation_params->target_user;
+        $relationship_type = 'FRIEND_REQUEST';
+        $target_username = $relation_params->target_username;
+
             $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findBy(array('username' => $target_username));
-            
 
             if(!empty($target_user)){
                 $source_user = $this->get('security.context')->getToken()->getUser();
 
-                $new_rul->setCreator($source_user);
+                $new_rel->setCreatorUser($source_user);
 
-                $new_rel->addUser($source_user);
-                $new_rel->addUser($target_user);
-
-                $new_rel->setCreatorKey("creatorkey");
-                $new_rel->setTargetKey("unset");
+                $new_rel->setCreatorUserKey("creatorkey");
+                $new_rel->setTargetUserKey("unset");
 
                 $new_rel->setRelationshipType($relationship_type);
+                $new_rel->setRelationshipKey("default");
 
-                $new_rel->persist($entity);
-                $new_rel->flush();
+                $new_rel->addUser($source_user);
+                $new_rel->addUser($target_user[0]);
+
+                $em->persist($new_rel);
+                $em->flush();
 
                 // Everything is golden, respond with 200
                 $response = new Response(
@@ -104,21 +105,24 @@ class UserRelationshipController extends Controller
                     Response::HTTP_OK,
                     array('content-type' => 'text/html')
                 );
+
+                return $response;
             }
-        }
 
         // Something has gone wrong, respond with error
         $response = new Response(
-            'Content',
+            'No user with that name',
             Response::HTTP_INTERNAL_SERVER_ERROR,
             array('content-type' => 'text/html')
         );
+
+        return $response;
     }
 
     /**
      * Creates a new UserRelationship entity.
      *
-     * @Route("/confirm/{id}", name="user_relationship_create")
+     * @Route("/confirm/{id}", name="user_relationship_confirm")
      * @Method("POST")
      */
     public function confirmAction($id){
