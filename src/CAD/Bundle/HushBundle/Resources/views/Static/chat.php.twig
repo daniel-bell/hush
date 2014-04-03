@@ -2,28 +2,30 @@
 
 {% block body -%}
     <h1>Chat</h1>
-    <div id="friends">
-        <ul id="friends-list">
-        </ul>
-        <div id="add-friend">
+    <div id="chat-interface">
+        <div id="friends">
+            <ul id="friends-list">
+            </ul>
+            <div id="add-friend">
 
-            <form method="post" name="add_friend" onsubmit="return false;">
-                <input type="text" value="" name="friend-name"/>
-                <input type="submit" value="S" />
-            </form>
+                <form method="post" name="add_friend" onsubmit="return false;">
+                    <input type="text" value="" name="friend-name"/>
+                    <input type="submit" value="S" />
+                </form>
+            </div>
         </div>
-    </div>
-    <div id="chat">
+        <div id="chat">
 
-        <div id="chat-list">
+            <div id="chat-list">
 
-        </div>
+            </div>
 
-        <div id="chat-controls">
-            <form id="send-messages" method="post" name="send_message" onsubmit="return false;">
-                <input type="text" value="" name="chat-text" />
-                <input type="button" value="Send" />
-            </form>
+            <div id="chat-controls">
+                <form id="send-messages" method="post" name="send_message" onsubmit="return false;">
+                    <input type="text" value="" name="chat-text" />
+                    <input type="button" value="Send" />
+                </form>
+            </div>
         </div>
     </div>
 
