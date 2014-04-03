@@ -33,20 +33,29 @@ class UserRelationshipController extends Controller
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
-        $curr_user = $this->get('security.context')->getToken()->getUser();
+        if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
+            $em = $this->getDoctrine()->getManager();
+            $curr_user = $this->get('security.context')->getToken()->getUser();
 
-        $query = $em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users');
-        $query->setParameter('user_id', $curr_user->getId());
-        $entities = $query->getResult();
+            $query = $em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users');
+            $query->setParameter('user_id', $curr_user->getId());
+            $entities = $query->getResult();
 
-        $serializer = $this->container->get('serializer');
-        $json_content = $serializer->serialize($entities, 'json');
+            $serializer = $this->container->get('serializer');
+            $json_content = $serializer->serialize($entities, 'json');
 
-        $response = new JsonResponse();
-        $response->setContent(utf8_decode($json_content));
-
+            $response = new JsonResponse();
+            $response->setContent(utf8_decode($json_content));
+        }
+        else{
+            $response = new Response(
+                '403 - Access Forbidden',
+                Response::HTTP_FORBIDDEN,
+                array('content-type' => 'text/html')
+            );
+        }
         return $response;
+
     }
 
     public function indexJsonAction()
