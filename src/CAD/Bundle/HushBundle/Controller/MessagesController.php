@@ -74,26 +74,52 @@ class MessagesController extends Controller
      *
      * @Route("/", name="messages_create")
      * @Method("POST")
-     * @Template("HushBundle:Messages:new.html.twig")
      */
     public function createAction(Request $request)
     {
         $entity = new Messages();
-        $form = $this->createCreateForm($entity);
-        $form->handleRequest($request);
 
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($entity);
-            $em->flush();
+        // Grab the json_str from the POST request
+        $params = $request->request->get("json_str");
+        $params = stripslashes($params);
+        $message_params = json_decode(trim($params, '"'));
+        unset($params);
 
-            return $this->redirect($this->generateUrl('messages_show', array('id' => $entity->getId())));
-        }
+        $entity->setMessageContent($message_params->messageContent);
 
-        return array(
-            'entity' => $entity,
-            'form'   => $form->createView(),
+        $date = $message_params->sentTime->date;
+        $time = $message_params->sentTime->time;
+
+        // Create a date from a mangled set of strings
+        $entity->setSentTime(new \DateTime(
+          $date->year . '-' .
+          $date->month . '-' .
+          $date->day . ' ' .
+          $time->hour . ':' .
+          $time->minute));
+
+        $em = $this->getDoctrine()->getManager();
+
+        // Find the users in the database
+        // TODO: Catch exceptions
+        $targetUser = $em->getRepository('HushBundle:Users')->find($message_params->targetUser);
+        $sendUser = $em->getRepository('HushBundle:Users')->find($message_params->sendUser);
+
+        $entity->setTargetUser($targetUser);
+        $entity->setsendUser($sendUser);
+        $entity->setMessageKey($message_params->messageKey);
+
+        $em->persist($entity);
+        $em->flush();
+
+        // TODO: Change response code on failure
+        $response = new Response(
+            'Content',
+            Response::HTTP_OK,
+            array('content-type' => 'text/html')
         );
+
+        return $response;
     }
 
     /**
