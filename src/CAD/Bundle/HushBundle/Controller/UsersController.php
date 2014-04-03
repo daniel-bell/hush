@@ -74,11 +74,12 @@ class UsersController extends Controller
         }
 
         $validator = $this->get('validator');
-        $errors = $validator->validate($entity);
+        $validation_errors = $validator->validate($entity);
 
-        if (count($errors) > 0) {
-            $validation_errors = (string) $errors;
-            $this->get('session')->getFlashBag()->add('notice',$validation_errors);
+        if (count($validation_errors) > 0) {
+            foreach($validation_errors as $val_error){
+                $this->get('session')->getFlashBag()->add('notice', $val_error->getMessage());;
+            }
         }
 
         return $this->redirect($this->generateUrl('hush_homepage'));

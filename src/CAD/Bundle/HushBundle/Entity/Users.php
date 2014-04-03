@@ -23,8 +23,8 @@ class Users implements UserInterface, JSONSerializable
      * @Assert\Length(
      *      min = "3",
      *      max = "24",
-     *      minMessage = "Your first name must be at least {{ limit }} characters length",
-     *      maxMessage = "Your first name cannot be longer than {{ limit }} characters length"
+     *      minMessage = "Your first name must be at least {{ limit }} in characters length",
+     *      maxMessage = "Your first name cannot be longer than {{ limit }} in characters length"
      * )
      * @Assert\Regex("/^[A-Za-z0-9_]+$/")
      */
@@ -47,7 +47,7 @@ class Users implements UserInterface, JSONSerializable
      * @ORM\Column(name="password_hash", type="string", length=256, nullable=false)
      * @Assert\Length(
      *       min = "10",
-     *       minMessage = "Your password must be at least {{ limit }} characters length"
+     *       minMessage = "Your password must be at least {{ limit }} in characters length"
      * )
      */
     private $password;
