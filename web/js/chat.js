@@ -86,10 +86,10 @@ function fetchFriendsList() {
             var ul = document.getElementById('friends-list');
             for (var i in friends) {
                 // TODO: Update the endpoint
-                var username = friends[i].target_user.username;
+                var username = friends[i].creator_user.username;
 
                 el = document.createElement("li");
-                el.setAttribute('user-id', friends[i].target_user.id);
+                el.setAttribute('user-id', friends[i].creator_user.id);
                 el.innerHTML = '<img src="http://placehold.it/75x75" alt="' + username +'" title="' + username + '"/>';
 
                 ul.appendChild(el);
