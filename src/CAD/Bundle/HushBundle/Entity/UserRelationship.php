@@ -13,11 +13,25 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UserRelationship implements JSONSerializable
 {
-    // ...
+
     /**
-     * @ORM\ManyToMany(targetEntity="Users", mappedBy="users")
+     * @ORM\ManyToMany(targetEntity="Users")
+     * @ORM\JoinTable(name="user_relationships_users",
+     * joinColumns={@ORM\JoinColumn(name="relationship_id", referencedColumnName="id")},
+     * inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")})
      */
     private $users;
+
+
+    /**
+     * @var \CAD\Bundle\HushBundle\Entity\Users
+     *
+     * @ORM\ManyToOne(targetEntity="CAD\Bundle\HushBundle\Entity\Users")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="creator_user_id", referencedColumnName="id")
+     * })
+     */
+    private $creator_user;
 
     /**
      * @var string
@@ -159,56 +173,46 @@ class UserRelationship implements JSONSerializable
     }
 
     /**
-     * Set targetUser
-     *
-     * @param \CAD\Bundle\HushBundle\Entity\Users $targetUser
-     * @return UserRelationship
+     * Get the users in the relationship
      */
-    public function setTargetUser(\CAD\Bundle\HushBundle\Entity\Users $targetUser = null)
-    {
-        $this->targetUser = $targetUser;
-
-        return $this;
+    public function getUsers() {
+        return $this->users;
     }
 
     /**
-     * Get targetUser
+     * Get creator user
      *
-     * @return \CAD\Bundle\HushBundle\Entity\Users 
+     * @return Users
      */
-    public function getTargetUser()
+    public function getCreator()
     {
-        return $this->targetUser;
+        return $this->creator_user;
+    }
+
+
+    /**
+     * Set creator user
+     *
+     */
+    public function setCreator($user)
+    {
+        $this->creator_user = $user;
     }
 
     /**
-     * Set creatorUser
-     *
-     * @param \CAD\Bundle\HushBundle\Entity\Users $creatorUser
-     * @return UserRelationship
+     * Add a user to the relationship
      */
-    public function setCreatorUser(\CAD\Bundle\HushBundle\Entity\Users $creatorUser = null)
-    {
-        $this->creatorUser = $creatorUser;
-
-        return $this;
-    }
-
-    /**
-     * Get creatorUser
-     *
-     * @return \CAD\Bundle\HushBundle\Entity\Users 
-     */
-    public function getCreatorUser()
-    {
-        return $this->creatorUser;
+    public function addUser($user) {
+        return $this->users->add($user);
     }
 
     public function JSONSerialize() {
+      $users = $this->getUsers()->toArray();
+
       return array( 
         'id' => $this->getId(),
-        'creator_user' => $this->getCreatorUser(),
-        'target_user' => $this->getTargetUser(),
+        'creator_user' => array_pop($users),
+        'target_user' => array_pop($users),
         'relationship_type' => $this->getRelationshipType()
       );
     }
