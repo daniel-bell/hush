@@ -15,19 +15,22 @@ function addFriendListener() {
     for (var i in friendLis) {
         friend = friendLis[i];
 
-        console.log(friend);
-        friend.addEventListener("click", function() {
-            console.log("Click");
+        if (this.nodeName === "LI") {
+            console.log(friend);
+            friend.addEventListener("click", function() {
+                console.log("Click");
 
-            if (this.classList) {
-                this.classList.add('active');
-            }
+                if (this.classList) {
+                    this.classList.add('active');
+                }
 
-            // TODO: How do I remove?
-            this.setAttribute('class', "active");
-            user_id = parseInt(this.getAttribute('user-id'));
-            activeTarget = user_id;
-        });
+                // TODO: How do I remove?
+                this.setAttribute('class', "active");
+                user_id = parseInt(this.getAttribute('user-id'));
+                activeTarget = user_id;
+
+            });
+        }
     }
 
 }
@@ -80,27 +83,34 @@ function fetchFriendsList() {
     xmlHttp.onreadystatechange = function() {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
             var response = xmlHttp.responseText;
+            console.log(response);
             var friends = JSON.parse(response);
 
             // Build up the new <li> elements
             var ul = document.getElementById('friends-list');
+
             for (var i in friends) {
-                // TODO: Update the endpoint
-                var username = friends[i].creator_user.username;
+                users = friends[i].users;
 
-                el = document.createElement("li");
-                el.setAttribute('user-id', friends[i].creator_user.id);
-                el.innerHTML = '<img src="http://placehold.it/75x75" alt="' + username +'" title="' + username + '"/>';
+                for (var u in users) {
+                    user = users[u];
 
-                ul.appendChild(el);
+                    // TODO: Get current user
+                    if (user.id != 1) {
+                        el = document.createElement("li");
+                        el.setAttribute('user-id', user.id);
+                        el.innerHTML = '<img src="http://placehold.it/75x75" alt="' + user.username +'" title="' + user.username + '"/>';
+
+                        ul.appendChild(el);
+                    }
+                }
             }
 
             // Load the friend listener
             addFriendListener();
         }
     }
-    // TODO: HARDCODED
-    xmlHttp.open("GET", "/users/1/relationships", true)
+    xmlHttp.open("GET", "/user_relationship", true)
     xmlHttp.send() 
 }
 
