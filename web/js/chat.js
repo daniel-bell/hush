@@ -1,8 +1,36 @@
 /**
  * Globals
  */
-
 var messageList = [];
+var activeTarget = -1;
+var friendLis;
+
+function addFriendListener() {
+    console.log("Listen");
+    
+    var friend;
+
+    friendLis = document.getElementById('friends-list').children;
+
+    for (var i in friendLis) {
+        friend = friendLis[i];
+
+        console.log(friend);
+        friend.addEventListener("click", function() {
+            console.log("Click");
+
+            if (this.classList) {
+                this.classList.add('active');
+            }
+
+            // TODO: How do I remove?
+            this.setAttribute('class', "active");
+            user_id = parseInt(this.getAttribute('user-id'));
+            activeTarget = user_id;
+        });
+    }
+
+}
 
 function fetchLatestMessages() {
     var xmlHttp = new XMLHttpRequest();
@@ -31,6 +59,7 @@ function fetchLatestMessages() {
                     messageList.push(messages[i].id);
                 }
             }
+
         } 
         console.log(xmlHttp.responseText);
 
@@ -39,7 +68,7 @@ function fetchLatestMessages() {
     xmlHttp.open("POST", "/messages/mylatest.json", true);
     xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
     //TODO: Hardcoded
-    xmlHttp.send("friend_id=2");
+    xmlHttp.send("friend_id=" + activeTarget);
 }
 
 /**
@@ -56,14 +85,18 @@ function fetchFriendsList() {
             // Build up the new <li> elements
             var ul = document.getElementById('friends-list');
             for (var i in friends) {
+                // TODO: Update the endpoint
                 var username = friends[i].target_user.username;
 
                 el = document.createElement("li");
+                el.setAttribute('user-id', friends[i].target_user.id);
                 el.innerHTML = '<img src="http://placehold.it/75x75" alt="' + username +'" title="' + username + '"/>';
 
                 ul.appendChild(el);
             }
 
+            // Load the friend listener
+            addFriendListener();
         }
     }
     // TODO: HARDCODED
@@ -77,8 +110,7 @@ function fetchFriendsList() {
 function sendMessage() {
     console.log("Send Message");
 
-    var form, messageBox;
-    var xmlHttp, params;
+    var form, messageBox, messageText, xmlHttp, params;
 
     form = document.getElementById('chat-controls').children[0];
 
@@ -113,9 +145,7 @@ function sendMessage() {
                }
             },
            "messageContent": messageText,
-           //TODO: HARDCODE warning
-           "targetUser": 2,
-           "sendUser": 1
+           "targetUser": activeTarget
        }
 
        params = "json_str=" + JSON.stringify(params);
@@ -134,4 +164,3 @@ function sendMessage() {
 var chat_form = document.getElementById('send-messages').elements[1];
 
 chat_form.addEventListener('click', sendMessage);
-

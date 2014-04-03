@@ -103,7 +103,7 @@ class MessagesController extends Controller
         // Find the users in the database
         // TODO: Catch exceptions
         $targetUser = $em->getRepository('HushBundle:Users')->find($message_params->targetUser);
-        $sendUser = $em->getRepository('HushBundle:Users')->find($message_params->sendUser);
+        $sendUser = $this->getUser();
 
         $entity->setTargetUser($targetUser);
         $entity->setsendUser($sendUser);
