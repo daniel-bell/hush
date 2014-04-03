@@ -193,6 +193,7 @@ class Messages implements JSONSerializable
     public function jsonSerialize()
     {
       return array(
+        'id' => $this->getId(),
         'sentTime' => $this->getSentTime(),
         'messageContent' => $this->getMessageContent(),
         // TODO: Add getUsername

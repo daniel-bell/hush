@@ -162,19 +162,39 @@ class MessagesController extends Controller
     /**
      * Get the latest messages sent to a user
      *
-     * @Route("/{userId}/latest.json", name="get_latest_message")
-     * @Method("GET")
+     * @Route("/mylatest.json", name="get_latest_message")
+     * @Method("POST")
      * @return JSON response of the latest id
      */
-    public function getLatestMessages($userId)
+    public function getLatestMessages(Request $request)
     {
 
-        // TODO: Get this as a param
-        $limit = 5;
-
         $em = $this->getDoctrine()->getManager();
+
+        $friend_id = intval($request->request->get("friend_id"));
+
+        $user_session = $this->getUser();
+        $userId = -1;
+
+        if ($user_session) {
+          $userId = $user_session->getId();
+        } else {
+            // Just fire a 503 response
+            $response = new Response(
+                'Fail',
+                Response::HTTP_FORBIDDEN,
+                array('content-type' => 'text/html'));
+            return $response;
+        }
+
+        // This limit could become a problem
+        $limit = 10;
+
         $entities = $em->getRepository('HushBundle:Messages')->findBy(
-          array('sendUser' => $userId), 
+          array(
+            'sendUser' => $userId,
+            'targetUser' => $friend_id
+          ), 
           array('sentTime' => 'DESC'),
           $limit
         );

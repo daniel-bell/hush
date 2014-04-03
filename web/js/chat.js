@@ -1,3 +1,9 @@
+/**
+ * Globals
+ */
+
+var messageList = [];
+
 function fetchLatestMessages() {
     var xmlHttp = new XMLHttpRequest();
 
@@ -9,22 +15,31 @@ function fetchLatestMessages() {
             var chat_message = document.getElementById("chat-list");
 
             for (var i in messages) {
-                var date = messages[i].sentTime.date;
-                var messageContent = messages[i].messageContent;
-              
-              
-                var el_li = document.createElement("li");
-                el_li.innerHTML =   '<span class="date">' + date + '</span>' + 
-                                    '<span class="message-content">' + messageContent + '</span>';
+                // Only add new messages
+                if (messageList.indexOf(messages[i].id) < 0) {
+                    var date = messages[i].sentTime.date;
+                    var messageContent = messages[i].messageContent;
+                  
+                  
+                    var el_li = document.createElement("li");
+                    el_li.innerHTML =   '<span class="date">' + date + '</span>' + 
+                                        '<span class="message-content">' + messageContent + '</span>';
 
-                // Append the converted object
-                chat_message.appendChild(el_li); 
+                    // Append the converted object
+                    chat_message.appendChild(el_li); 
+
+                    messageList.push(messages[i].id);
+                }
             }
-        }
+        } 
+        console.log(xmlHttp.responseText);
+
     }
 
-    xmlHttp.open("GET", "/messages.json", true)
-    xmlHttp.send()
+    xmlHttp.open("POST", "/messages/mylatest.json", true);
+    xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    //TODO: Hardcoded
+    xmlHttp.send("friend_id=2");
 }
 
 /**
@@ -99,7 +114,7 @@ function sendMessage() {
             },
            "messageContent": messageText,
            //TODO: HARDCODE warning
-           "targetUser": 3,
+           "targetUser": 2,
            "sendUser": 1
        }
 
