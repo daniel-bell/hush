@@ -24,3 +24,4 @@ lib/model/om/*
 lib/model/map/*
 web/*Plugin/*
 /composer.phar
+/.idea
