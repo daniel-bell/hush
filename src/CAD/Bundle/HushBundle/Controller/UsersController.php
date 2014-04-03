@@ -145,9 +145,8 @@ class UsersController extends Controller
 
         $formattedRelationships = array_map("json_encode", $relationships->toArray());
 
-
         // The serializer was getting in the way
-        $formattedJson = implode($formattedRelationships, "");
+        $formattedJson = implode($formattedRelationships, ", ");
         $formattedJson = '[' . $formattedJson . ']';
 
         $response = new Response();
