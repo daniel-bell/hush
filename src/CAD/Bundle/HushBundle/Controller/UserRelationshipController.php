@@ -75,6 +75,8 @@ class UserRelationshipController extends Controller
             if(!empty($target_user)){
                 $source_user = $this->get('security.context')->getToken()->getUser();
 
+                $new_rul->setCreator($source_user);
+
                 $new_rel->addUser($source_user);
                 $new_rel->addUser($target_user);
 
@@ -106,8 +108,29 @@ class UserRelationshipController extends Controller
      * @Route("/confirm/{id}", name="user_relationship_create")
      * @Method("POST")
      */
-    public functionConfirmAction($id){
-        
+    public function confirmAction($id){
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository('HushBundle:UserRelationship')->find($id);
+        $curr_user = $this->get('security.context')->getToken()->getUser();
+
+        if($entity){
+            if($entity->getRelationshipType() == "FRIEND_REQUEST"){
+                if(in_array($curr_user, $entity->getUsers())){
+                    if($curr_user != $entity->getCreator()){
+                        $entity->setRelationshipType("FRIEND_CONFIRMED");
+                        $em->flush();
+                    }
+                }
+            } 
+        }
+
+        // Something has gone wrong, respond with error
+        $response = new Response(
+            'Content',
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            array('content-type' => 'text/html')
+        );
     }
 
     /**
