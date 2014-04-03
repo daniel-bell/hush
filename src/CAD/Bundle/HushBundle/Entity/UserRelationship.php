@@ -168,6 +168,13 @@ class UserRelationship implements JSONSerializable
         return $this->users;
     }
 
+    /**
+     * Add a user to the relationship
+     */
+    public function addUser($user) {
+        return $this->users->add($user);
+    }
+
     public function JSONSerialize() {
       $users = $this->getUsers()->toArray();
 
