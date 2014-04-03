@@ -85,7 +85,7 @@ class Users implements UserInterface, JSONSerializable
      * @ORM\ManyToMany(targetEntity="UserRelationship")
      * @ORM\JoinTable(name="user_relationships",
      * joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
-     * inverseJoinColumns={@ORM\JoinColumn(name="relationship_id", referencedColumnName="id", unique=true)})
+     * inverseJoinColumns={@ORM\JoinColumn(name="relationship_id", referencedColumnName="id")})
      */
     private $userRelationships;
 
