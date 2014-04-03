@@ -30,13 +30,13 @@
                             <div class="tabpage" id="tabpage_1">
                                 <h2>Login to hush</h2>
                                 <form action="{{ path('login_check') }}" method="post">
-                                    <label for="username">Username:</label>
-                                    <input type="text" id="username" name="_username" value="{{ last_username }}" /><br />
+                                        <label for="username">Username:</label>
+                                        <input type="text" id="username" name="_username" value="{{ last_username }}" /><br />
 
-                                    <label for="password">Password:</label>
-                                    <input type="password" id="password" name="_password" /><br />
+                                        <label for="password">Password:</label>
+                                        <input type="password" id="password" name="_password" /><br />
 
-                                    <button class="flat-button flat-button-green" type="submit">Login</button>
+                                        <button class="flat-button flat-button-green" type="submit">Login</button>
                                 </form>
                             </div>
                             <div class="tabpage" id="tabpage_2">
@@ -48,4 +48,5 @@
 			</div>
 		</div>
 	</div>
+    </div>
 {% endblock %}
