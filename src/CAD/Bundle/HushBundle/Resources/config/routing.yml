@@ -18,6 +18,11 @@ _users:
     type:     annotation
     prefix:   /
 
+_user_relationships:
+    resource: "@HushBundle/Controller/UserRelationshipController.php"
+    type:     annotation
+    prefix:   /
+
 chat:
     path: /chat
     defaults: 
