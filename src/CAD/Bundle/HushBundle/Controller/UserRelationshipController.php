@@ -30,10 +30,10 @@ class UserRelationshipController extends Controller
      */
     public function indexAction()
     {
-        $repo = $this->getDoctrine()->getRepository('HushBundle:UserRelationship');
+        $em = $this->getDoctrine()->getManager();
         $curr_user = $this->get('security.context')->getToken()->getUser();
 
-        $$query = $repo->createQueryBuilder('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users')->getQuery();
+        $query = $em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users');
         $query->setParameter('user_id', $curr_user->getId());
         $entities = $query->getResult();
 
