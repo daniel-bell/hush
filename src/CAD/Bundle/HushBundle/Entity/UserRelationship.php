@@ -13,9 +13,12 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UserRelationship implements JSONSerializable
 {
-    // ...
+
     /**
-     * @ORM\ManyToMany(targetEntity="Users", mappedBy="users")
+     * @ORM\ManyToMany(targetEntity="Users")
+     * @ORM\JoinTable(name="user_relationships",
+     * joinColumns={@ORM\JoinColumn(name="relationship_id", referencedColumnName="id")},
+     * inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")})
      */
     private $users;
 
@@ -159,56 +162,19 @@ class UserRelationship implements JSONSerializable
     }
 
     /**
-     * Set targetUser
-     *
-     * @param \CAD\Bundle\HushBundle\Entity\Users $targetUser
-     * @return UserRelationship
+     * Get the users in the relationship
      */
-    public function setTargetUser(\CAD\Bundle\HushBundle\Entity\Users $targetUser = null)
-    {
-        $this->targetUser = $targetUser;
-
-        return $this;
-    }
-
-    /**
-     * Get targetUser
-     *
-     * @return \CAD\Bundle\HushBundle\Entity\Users 
-     */
-    public function getTargetUser()
-    {
-        return $this->targetUser;
-    }
-
-    /**
-     * Set creatorUser
-     *
-     * @param \CAD\Bundle\HushBundle\Entity\Users $creatorUser
-     * @return UserRelationship
-     */
-    public function setCreatorUser(\CAD\Bundle\HushBundle\Entity\Users $creatorUser = null)
-    {
-        $this->creatorUser = $creatorUser;
-
-        return $this;
-    }
-
-    /**
-     * Get creatorUser
-     *
-     * @return \CAD\Bundle\HushBundle\Entity\Users 
-     */
-    public function getCreatorUser()
-    {
-        return $this->creatorUser;
+    public function getUsers() {
+        return $this->users;
     }
 
     public function JSONSerialize() {
+      $users = $this->getUsers()->toArray();
+
       return array( 
         'id' => $this->getId(),
-        'creator_user' => $this->getCreatorUser(),
-        'target_user' => $this->getTargetUser(),
+        'creator_user' => array_pop($users),
+        'target_user' => array_pop($users),
         'relationship_type' => $this->getRelationshipType()
       );
     }
