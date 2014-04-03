@@ -2,10 +2,6 @@ hush_homepage:
     pattern:  /
     defaults: { _controller: HushBundle:Default:index }
 
-login:
-    path:     /login/
-    defaults: { _controller: HushBundle:Security:login }
-
 login_check:
     path: /login_check/
 

@@ -73,10 +73,15 @@ class UsersController extends Controller
             return $this->redirect($this->generateUrl('hush_homepage'));
         }
 
-        return array(
-            'entity' => $entity,
-            'form'   => $form->createView(),
-        );
+        $validator = $this->get('validator');
+        $errors = $validator->validate($entity);
+
+        if (count($errors) > 0) {
+            $validation_errors = (string) $errors;
+            $this->get('session')->getFlashBag()->add('notice',$validation_errors);
+        }
+
+        return $this->redirect($this->generateUrl('hush_homepage'));
     }
 
     /**

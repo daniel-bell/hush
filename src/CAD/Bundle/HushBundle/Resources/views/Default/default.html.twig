@@ -12,7 +12,9 @@
 			</div>
 			<div class="unit four-of-five nav-items">
 					<ul>
-						<li><a class="flat-button flat-button-green" href="/login">Login</a></li>
+						{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+							<li><a class="flat-button flat-button-green" href="/logout">Logout</a></li>
+						{% endif %}
 						<li><a href="https://github.com/daniel-bell/hush">Github</a></li>
 					</ul>
 			</div>
