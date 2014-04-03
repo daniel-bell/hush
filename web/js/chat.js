@@ -4,10 +4,9 @@
 var messageList = [];
 var activeTarget = -1;
 var friendLis;
+var current_user = null;
 
 function addFriendListener() {
-    console.log("Listen");
-    
     var friend;
 
     friendLis = document.getElementById('friends-list').children;
@@ -15,19 +14,19 @@ function addFriendListener() {
     for (var i in friendLis) {
         friend = friendLis[i];
 
-        console.log(friend);
-        friend.addEventListener("click", function() {
-            console.log("Click");
+        if (friend.nodeName === "LI") {
+            friend.addEventListener("click", function() {
 
-            if (this.classList) {
-                this.classList.add('active');
-            }
+                if (this.classList) {
+                    this.classList.add('active');
+                }
 
-            // TODO: How do I remove?
-            this.setAttribute('class', "active");
-            user_id = parseInt(this.getAttribute('user-id'));
-            activeTarget = user_id;
-        });
+                // TODO: How do I remove?
+                this.setAttribute('class', "active");
+                user_id = parseInt(this.getAttribute('user-id'));
+                activeTarget = user_id;
+            });
+        }
     }
 
 }
@@ -61,13 +60,11 @@ function fetchLatestMessages() {
             }
 
         } 
-        console.log(xmlHttp.responseText);
 
     }
 
     xmlHttp.open("POST", "/messages/mylatest.json", true);
     xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-    //TODO: Hardcoded
     xmlHttp.send("friend_id=" + activeTarget);
 }
 
@@ -84,23 +81,28 @@ function fetchFriendsList() {
 
             // Build up the new <li> elements
             var ul = document.getElementById('friends-list');
+
             for (var i in friends) {
-                // TODO: Update the endpoint
-                var username = friends[i].creator_user.username;
+                users = friends[i].users;
 
-                el = document.createElement("li");
-                el.setAttribute('user-id', friends[i].creator_user.id);
-                el.innerHTML = '<img src="http://placehold.it/75x75" alt="' + username +'" title="' + username + '"/>';
+                for (var u in users) {
+                    user = users[u];
 
-                ul.appendChild(el);
+                    if (user.id != current_user.id) {
+                        el = document.createElement("li");
+                        el.setAttribute('user-id', user.id);
+                        el.innerHTML = '<img src="http://placehold.it/75x75" alt="' + user.username +'" title="' + user.username + '"/>';
+
+                        ul.appendChild(el);
+                    }
+                }
             }
 
             // Load the friend listener
             addFriendListener();
         }
     }
-    // TODO: HARDCODED
-    xmlHttp.open("GET", "/users/1/relationships", true)
+    xmlHttp.open("GET", "/user_relationship", true)
     xmlHttp.send() 
 }
 
@@ -108,54 +110,72 @@ function fetchFriendsList() {
  * Send the results of the send message form to the backend
  */
 function sendMessage() {
-    console.log("Send Message");
+    if (activeTarget > 0) {
+        console.log("Send Message");
 
-    var form, messageBox, messageText, xmlHttp, params;
+        var form, messageBox, messageText, xmlHttp, params;
 
-    form = document.getElementById('chat-controls').children[0];
+        form = document.getElementById('chat-controls').children[0];
 
-    messageBox = form.elements["chat-text"];
+        messageBox = form.elements["chat-text"];
 
-    messageText = messageBox.value;
-    // TODO: Test override
+        messageText = messageBox.value;
+        // TODO: Test override
 
-    // Check the box isn't just empty, or empty strings
-    // TODO: Add some HTML5 validation
-    if (messageText != "") {
-       xmlHttp = new XMLHttpRequest();
+        // Check the box isn't just empty, or empty strings
+        // TODO: Add some HTML5 validation
+        if (messageText != "") {
+           xmlHttp = new XMLHttpRequest();
 
-       xmlHttp.open('POST', '/messages/', true);
-       xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+           xmlHttp.open('POST', '/messages/', true);
+           xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
 
-       // Parameters
-       date = new Date();
+           // Parameters
+           date = new Date();
 
-       // Build up the parameters needed for the new Entity
-       params = {
-           "messageKey": "FIXME",
-           "sentTime": {
-               "date": {
-                   "month": date.getMonth() + 1,
-                   "day": date.getDate(),
-                   "year": date.getFullYear()
-               },
-               "time": {
-                   "hour": date.getHours(),
-                   "minute": date.getMinutes()
-               }
-            },
-           "messageContent": messageText,
-           "targetUser": activeTarget
-       }
+           // Build up the parameters needed for the new Entity
+           params = {
+               "messageKey": "FIXME",
+               "sentTime": {
+                   "date": {
+                       "month": date.getMonth() + 1,
+                       "day": date.getDate(),
+                       "year": date.getFullYear()
+                   },
+                   "time": {
+                       "hour": date.getHours(),
+                       "minute": date.getMinutes()
+                   }
+                },
+               "messageContent": messageText,
+               "targetUser": activeTarget
+           }
 
-       params = "json_str=" + JSON.stringify(params);
-       xmlHttp.send(params);
+           params = "json_str=" + JSON.stringify(params);
+           xmlHttp.send(params);
 
-       // Update the message list
-       fetchLatestMessages();
+           // Update the message list
+           fetchLatestMessages();
 
-        messageBox.value = "";
+            messageBox.value = "";
+        }
     }
+}
+
+/*
+ * Setup the global current_user from the users endpoint
+ */
+function getUserId() {
+    xmlHttp = new XMLHttpRequest();
+
+    xmlHttp.onreadystatechange = function() {
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+            current_user = JSON.parse(xmlHttp.responseText);
+        }
+    }
+
+    xmlHttp.open('GET', "/users/me", true);
+    xmlHttp.send();
 }
 
 function addFriend(){
@@ -200,3 +220,4 @@ chat_form.addEventListener('click', sendMessage);
 
 var friend_form = document.getElementById('add-friend-form').elements[1];
 friend_form.addEventListener('click', addFriend);
+getUserId();
