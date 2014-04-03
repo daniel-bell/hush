@@ -91,7 +91,8 @@ function fetchFriendsList() {
                     if (user.id != current_user.id) {
                         el = document.createElement("li");
                         el.setAttribute('user-id', user.id);
-                        el.innerHTML = '<img src="http://placehold.it/75x75" alt="' + user.username +'" title="' + user.username + '"/>';
+                        // TODO: Add a wee checkmark for accepting?
+                        el.innerHTML = user.username;
 
                         ul.appendChild(el);
                     }
@@ -200,9 +201,18 @@ function addFriend(){
        }
 
        xmlHttp.onreadystatechange = function() {
-          console.log(xmlHttp.status);
-          var response = xmlHttp.responseText;
-          console.log(response);
+          if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+              var response = xmlHttp.responseText;
+
+              ul = document.getElementById('friends-list');
+              // Add to the friend list live
+              el = document.createElement("li");
+              el.setAttribute('user-id', user.id);
+              // TODO: Add a wee checkmark for accepting?
+              el.innerHTML = friend_name;
+
+              ul.appendChild(el);
+            }
        }
 
        params = "json_str=" + JSON.stringify(params);
