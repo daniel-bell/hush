@@ -17,20 +17,10 @@ use JMS\Serializer\nnotation\Expose;
 class UserRelationship implements JSONSerializable
 {
     /**
-     * @ORM\ManyToMany(targetEntity="Users", mappedBy="userRelationships")
+     * @ORM\ManyToMany(targetEntity="Users")
+     * @ORM\JoinTable(name="user_relationships")
      */
     private $users;
-
-
-    /**
-     * @var \CAD\Bundle\HushBundle\Entity\Users
-     *
-     * @ORM\ManyToOne(targetEntity="CAD\Bundle\HushBundle\Entity\Users")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="creator_user_id", referencedColumnName="id")
-     * })
-     */
-    private $creator_user;
 
     /**
      * @var string
@@ -201,8 +191,8 @@ class UserRelationship implements JSONSerializable
     /**
      * Add a user to the relationship
      */
-    public function addUser($user) {
-        return $this->users->add($user);
+    public function addUser(\CAD\Bundle\HushBundle\Entity\Users $user) {
+        return $this->users[] = $user;
     }
 
     public function JSONSerialize() {
@@ -214,5 +204,45 @@ class UserRelationship implements JSONSerializable
         'target_user' => array_pop($users),
         'relationship_type' => $this->getRelationshipType()
       );
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->users = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Remove users
+     *
+     * @param \CAD\Bundle\HushBundle\Entity\Users $users
+     */
+    public function removeUser(\CAD\Bundle\HushBundle\Entity\Users $users)
+    {
+        $this->users->removeElement($users);
+    }
+
+    /**
+     * Set creator_user
+     *
+     * @param \CAD\Bundle\HushBundle\Entity\Users $creatorUser
+     * @return UserRelationship
+     */
+    public function setCreatorUser(\CAD\Bundle\HushBundle\Entity\Users $creatorUser = null)
+    {
+        $this->creator_user = $creatorUser;
+
+        return $this;
+    }
+
+    /**
+     * Get creator_user
+     *
+     * @return \CAD\Bundle\HushBundle\Entity\Users 
+     */
+    public function getCreatorUser()
+    {
+        return $this->creator_user;
     }
 }

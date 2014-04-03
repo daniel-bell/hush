@@ -89,15 +89,6 @@ class Users implements UserInterface, JSONSerializable
     private $lastActivity;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection<\HushBundle\Entity\UserRelationship>
-     * @ORM\ManyToMany(targetEntity="UserRelationship", inversedBy="users")
-     * @ORM\JoinTable(name="user_relationships",
-     * joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
-     * inverseJoinColumns={@ORM\JoinColumn(name="relationship_id", referencedColumnName="id")})
-     */
-    private $userRelationships;
-
-    /**
      * @var integer
      *
      * @ORM\Column(name="id", type="integer")
@@ -161,29 +152,6 @@ class Users implements UserInterface, JSONSerializable
     public function getRoles()
     {
         return array('ROLE_USER');
-    } 
-
-    /**
-     * Set password
-     *
-     * @param string $password
-     * @return Users
-     */
-    public function setpassword($password)
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
-     * Get password
-     *
-     * @return string 
-     */
-    public function getpassword()
-    {
-        return $this->password;
     }
 
     /**
@@ -278,13 +246,6 @@ class Users implements UserInterface, JSONSerializable
         return $this->lastActivity;
     }
 
-    /**
-     * Get the relationships for a user
-     */
-    public function getRelationships() {
-
-      return $this->userRelationships;
-    }
 
     /**
      * Get id
@@ -317,5 +278,34 @@ class Users implements UserInterface, JSONSerializable
 
     public function __toString(){
         return $this->username;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+    }
+
+    /**
+     * Set password
+     *
+     * @param string $password
+     * @return Users
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Get password
+     *
+     * @return string 
+     */
+    public function getPassword()
+    {
+        return $this->password;
     }
 }
