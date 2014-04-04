@@ -99,7 +99,7 @@ class UsersController extends Controller
             'method' => 'POST',
         ));
 
-        $form->add('submit', 'submit', array('label' => 'Register'));
+        $form->add('submit', 'submit', array('label' => 'Register', 'attr' => array('class' => 'flat-button',)));
 
         return $form;
     }

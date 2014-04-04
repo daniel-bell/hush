@@ -14,8 +14,8 @@ html, body{
 }
 
 .grid {
-	margin-left: -3%;
-	max-width: 105%;
+	//**margin-left: -3%;**/
+	max-width: 100%;
 }
 
 .unit {
@@ -23,18 +23,25 @@ html, body{
 	*display: inline;
 	*zoom: 1;
 	vertical-align: top;
-	margin-left: 3%;
+	/**margin-left: 3%;**/
 	margin-right: -.25em;
 	/* Clearfix */
+	/**
 	overflow: hidden;
 	*overflow: visible;
+	**/
+}
+
+.unit-right
+{
+    margin-left:2%;
 }
 
 .span-grid {
-	width: 97%;
+	width: 100%;
 }
 
-.one-of-two { width: 47%; }
+.one-of-two { width: 49%; }
 
 .one-of-three { width: 30.36%; }
 .two-of-three { width: 63.666666666%; }
@@ -52,6 +59,11 @@ html, body{
 .three-of-six { width: 47%; }
 .four-of-six { width: 63%; }
 .five-of-six { width: 80%; }
+
+.pull-right
+{
+    float:right;
+}
 
 @media screen and (max-width: 650px) {
 	.grid {

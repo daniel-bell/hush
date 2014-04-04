@@ -3,21 +3,22 @@
 {% stylesheets 'css/*.css' %}
 	    <link rel="stylesheet" type="text/css" href="{{ asset_url }}" />
 {% endstylesheets %}
+        <script src="/js/tabs.js"></script>
 </head>
 <body>
 	<div id="navbar">
 			<div class="grid">
 			<div class="unit one-of-five nav-title">
-				<h1><a href="/">hush</a></h1>
+				<h1 class="hush-title"><a href="/">hush</a></h1>
 			</div>
 			<div class="unit four-of-five nav-items">
 					<ul>
 						{% if is_granted('IS_AUTHENTICATED_FULLY') %}
 							<li><a class="flat-button flat-button-green" href="/logout">Logout</a></li>
 						{% endif %}
-						<li><a href="https://github.com/daniel-bell/hush">Github</a></li>
+						<li><a href="https://github.com/daniel-bell/hush"><i class="fa fa-github-alt fa-2x"></i></a></li>
 					</ul>
-			</div>
+			    </div>
 			</div>
 		</div>
 

@@ -4,9 +4,12 @@
 <div class="grid">
 		<div class="unit span-grid landing-page">
 			<div class="unit one-of-two">
-				Stuff about hush
+                <div class="panel">
+                    Stuff about hush
+                </div>
 			</div>
-			<div class="unit one-of-two">
+			<div class="unit one-of-two unit-right">
+                <div class="panel">
 				{% for flashMessage in app.session.flashbag.get('notice') %}
 			    <div class="flash-notice">
 				        {{ flashMessage }}
@@ -16,20 +19,32 @@
 				{% if error %}
 				    <div>{{ error.message }}</div>
 				{% endif %}
+                    <div id="tabContainer">
+                        <div class="tabs">
+                            <ul>
+                                <li id="tabHeader_1">Login</li>
+                                <li id="tabHeader_2">Register</li>
+                            </ul>
+                        </div>
+                        <div class="tabscontent">
+                            <div class="tabpage" id="tabpage_1">
+                                <h2>Login to hush</h2>
+                                <form action="{{ path('login_check') }}" method="post">
+                                    <label for="username">Username:</label>
+                                    <input type="text" id="username" name="_username" value="{{ last_username }}" /><br />
 
-				<form action="{{ path('login_check') }}" method="post">
-				    <label for="username">Username:</label>
-				    <input type="text" id="username" name="_username" value="{{ last_username }}" />
+                                    <label for="password">Password:</label>
+                                    <input type="password" id="password" name="_password" /><br />
 
-				    <label for="password">Password:</label>
-				    <input type="password" id="password" name="_password" />
-
-				    <button class="flat-button flat-button-green" type="submit">login</button>
-				</form>
-
-				<br>
-
-				{{ form(register_form) }}
+                                    <button class="flat-button flat-button-green" type="submit">Login</button>
+                                </form>
+                            </div>
+                            <div class="tabpage" id="tabpage_2">
+                                <h2>Register to hush</h2>
+                                {{ form(register_form) }}
+                            </div>
+                        </div>
+                    </div>
 			</div>
 		</div>
 	</div>
