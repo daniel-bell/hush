@@ -68,8 +68,9 @@ function fetchLatestMessages() {
                     var sender = messages[i].sendUsername;
                   
                     var el_li = document.createElement("li");
-                    el_li.innerHTML =   '<time date-time="' + date.toString() +'">' + dateString + '</time>' + 
-                                        '<span class="sender">' + sender + '</span>' +
+                    el_li.className = "message-ul";
+                    el_li.innerHTML =   '<span class="message-time"><time date-time="' + date.toString() +'">' + dateString + '</time></span>' + 
+                                        '<span class="sender">' + sender + ':</span>' +
                                         '<span class="message-content">' + messageContent + '</span>';
 
                     // Append the converted object
