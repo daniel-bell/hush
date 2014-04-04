@@ -80,8 +80,6 @@ class UserRelationshipController extends Controller
     {
         
         if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
-            $new_rel = new UserRelationship();
-            
             $params = $request->request->get("json_str");
             $params = stripslashes($params);
             $relation_params = json_decode(trim($params, '"'));
@@ -97,13 +95,13 @@ class UserRelationshipController extends Controller
 
             if(!empty($target_user)){
                 // Query to check that the use is not friends with the target user already
-                $query = $em->createQuery('SELECT rel.id from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users AND :target_id MEMBER OF rel.users');
-                $query->setParameter('user_id', $source_user);
-                $query->setParameter('target_id', $target_user[0]);
-                $entities = $query->getResult();
+                $check_query = $em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users AND :target_id MEMBER OF rel.users');
+                $check_query->setParameter('user_id', $source_user);
+                $check_query->setParameter('target_id', $target_user[0]);
+                $entities = $check_query->getResult();
 
-                // If not already friends
-                if(count($entities) == 0)
+                if(empty($entities)){
+                    $new_rel = new UserRelationship();
                     $new_rel->setCreatorUser($source_user);
 
                     $new_rel->setCreatorUserKey("creatorkey");
@@ -133,6 +131,7 @@ class UserRelationshipController extends Controller
                         Response::HTTP_INTERNAL_SERVER_ERROR,
                         array('content-type' => 'text/json')
                     );
+                    return $response;
                 }
 
             // Something has gone wrong, respond with error
@@ -151,7 +150,7 @@ class UserRelationshipController extends Controller
         }
 
         return $response;
-    }
+    }}
 
     /**
      * Confirms a UserRelationship entity.
