@@ -1,29 +1,27 @@
 {% extends 'HushBundle:Default:default.html.twig' %}
 
 {% block body -%}
-    <h1>Chat</h1>
-    <div id="chat-interface">
-        <div id="friends">
-            <ul id="friends-list">
+    <div id="chat-interface" class="grid">
+        <div id="friends" class="unit one-of-four panel">
+            <ul id="friends-list" class="unit span-grid">
             </ul>
-            <div id="add-friend">
-
-                <form method="post" name="add_friend" onsubmit="return false;">
+            <div id="add-friend" class="unit span-grid">
+                <form id="add-friend-form" method="post" name="add_friend" onsubmit="return false;">
                     <input type="text" value="" name="friend-name"/>
-                    <input type="submit" value="S" />
+                    <input type="button" class="flat-button flat-button-blue" value="Add" />
                 </form>
             </div>
         </div>
-        <div id="chat">
+        <div id="chat" class="unit three-of-four panel">
+            <h1 id="chat-title">Your are talking with</h1>
+            <ul id="chat-list" class="unit span-grid">
 
-            <div id="chat-list">
+            </ul>
 
-            </div>
-
-            <div id="chat-controls">
+            <div id="chat-controls" class="unit span-grid">
                 <form id="send-messages" method="post" name="send_message" onsubmit="return false;">
                     <input type="text" value="" name="chat-text" />
-                    <input type="button" value="Send" />
+                    <input type="button" class="flat-button flat-button-green" value="Send" />
                 </form>
             </div>
         </div>

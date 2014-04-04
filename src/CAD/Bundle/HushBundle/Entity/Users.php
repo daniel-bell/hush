@@ -2,17 +2,22 @@
 
 namespace CAD\Bundle\HushBundle\Entity;
 
+use CAD\Bundle\HushBundle\Entity\UserRelationship;
 use JSONSerializable;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
+
 /**
  * Users
  *
  * @ORM\Table(name="users")
  * @ORM\Entity
+ * @ExclusionPolicy("all")
  */
 class Users implements UserInterface, JSONSerializable
 {
@@ -27,6 +32,7 @@ class Users implements UserInterface, JSONSerializable
      *      maxMessage = "Your first name cannot be longer than {{ limit }} in characters length"
      * )
      * @Assert\Regex("/^[A-Za-z0-9_]+$/")
+     * @Expose
      */
     private $username;
 
@@ -63,6 +69,7 @@ class Users implements UserInterface, JSONSerializable
      * @var string
      *
      * @ORM\Column(name="avatar_file_path", type="string", length=256, nullable=true)
+     * @Expose
      */
     private $avatarFilePath;
 
@@ -77,17 +84,9 @@ class Users implements UserInterface, JSONSerializable
      * @var \DateTime
      *
      * @ORM\Column(name="last_activity", type="datetime", nullable=true)
+     * @Expose
      */
     private $lastActivity;
-
-    /**
-     * @var \Doctrine\Common\Collections\Collection<\HushBundle\Entity\UserRelationship>
-     * @ORM\ManyToMany(targetEntity="UserRelationship")
-     * @ORM\JoinTable(name="user_relationships",
-     * joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
-     * inverseJoinColumns={@ORM\JoinColumn(name="relationship_id", referencedColumnName="id")})
-     */
-    private $userRelationships;
 
     /**
      * @var integer
@@ -95,6 +94,7 @@ class Users implements UserInterface, JSONSerializable
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Expose
      */
     private $id;
 
@@ -152,29 +152,6 @@ class Users implements UserInterface, JSONSerializable
     public function getRoles()
     {
         return array('ROLE_USER');
-    } 
-
-    /**
-     * Set password
-     *
-     * @param string $password
-     * @return Users
-     */
-    public function setpassword($password)
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
-     * Get password
-     *
-     * @return string 
-     */
-    public function getpassword()
-    {
-        return $this->password;
     }
 
     /**
@@ -269,13 +246,6 @@ class Users implements UserInterface, JSONSerializable
         return $this->lastActivity;
     }
 
-    /**
-     * Get the relationships for a user
-     */
-    public function getRelationships() {
-
-      return $this->userRelationships;
-    }
 
     /**
      * Get id
@@ -308,5 +278,34 @@ class Users implements UserInterface, JSONSerializable
 
     public function __toString(){
         return $this->username;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+    }
+
+    /**
+     * Set password
+     *
+     * @param string $password
+     * @return Users
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Get password
+     *
+     * @return string 
+     */
+    public function getPassword()
+    {
+        return $this->password;
     }
 }

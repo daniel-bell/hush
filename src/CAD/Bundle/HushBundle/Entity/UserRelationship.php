@@ -4,6 +4,9 @@ namespace CAD\Bundle\HushBundle\Entity;
 
 use JSONSerializable;
 use Doctrine\ORM\Mapping as ORM;
+use CAD\Bundle\HushBundle\Entity\Users;
+use JMS\Serializer\Annotation\Type;
+use JMS\Serializer\nnotation\Expose;
 
 /**
  * UserRelationship
@@ -13,12 +16,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UserRelationship implements JSONSerializable
 {
-
     /**
      * @ORM\ManyToMany(targetEntity="Users")
-     * @ORM\JoinTable(name="user_relationships_users",
-     * joinColumns={@ORM\JoinColumn(name="relationship_id", referencedColumnName="id")},
-     * inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")})
+     * @ORM\JoinTable(name="user_relationship")
      */
     private $users;
 
@@ -202,8 +202,8 @@ class UserRelationship implements JSONSerializable
     /**
      * Add a user to the relationship
      */
-    public function addUser($user) {
-        return $this->users->add($user);
+    public function addUser(\CAD\Bundle\HushBundle\Entity\Users $user) {
+        return $this->users[] = $user;
     }
 
     public function JSONSerialize() {
@@ -215,5 +215,45 @@ class UserRelationship implements JSONSerializable
         'target_user' => array_pop($users),
         'relationship_type' => $this->getRelationshipType()
       );
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->users = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Remove users
+     *
+     * @param \CAD\Bundle\HushBundle\Entity\Users $users
+     */
+    public function removeUser(\CAD\Bundle\HushBundle\Entity\Users $users)
+    {
+        $this->users->removeElement($users);
+    }
+
+    /**
+     * Set creator_user
+     *
+     * @param \CAD\Bundle\HushBundle\Entity\Users $creatorUser
+     * @return UserRelationship
+     */
+    public function setCreatorUser(\CAD\Bundle\HushBundle\Entity\Users $creatorUser = null)
+    {
+        $this->creator_user = $creatorUser;
+
+        return $this;
+    }
+
+    /**
+     * Get creator_user
+     *
+     * @return \CAD\Bundle\HushBundle\Entity\Users 
+     */
+    public function getCreatorUser()
+    {
+        return $this->creator_user;
     }
 }

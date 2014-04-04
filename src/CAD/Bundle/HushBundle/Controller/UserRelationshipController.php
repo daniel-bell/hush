@@ -12,11 +12,15 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CAD\Bundle\HushBundle\Entity\UserRelationship;
 use CAD\Bundle\HushBundle\Form\UserRelationshipType;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Exclude;
 
 /**
  * UserRelationship controller.
  *
  * @Route("/user_relationship")
+ * @ExclusionPolicy("none")
+ *
  */
 class UserRelationshipController extends Controller
 {
@@ -30,19 +34,30 @@ class UserRelationshipController extends Controller
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
-        $qb = $em->createQueryBuilder();
+        // Check if the user is logged in, if not 403
+        if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
+            $em = $this->getDoctrine()->getManager();
+            $curr_user = $this->get('security.context')->getToken()->getUser();
 
-        $curr_user = $this->get('security.context')->getToken()->getUser();
+            $query = $em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users');
+            $query->setParameter('user_id', $curr_user);
+            $entities = $query->getResult();
 
-        $query = $qb->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users');
-        $query->setParameter('user_id', $curr_user->getId());
-        $entities = $query->getResult();
+            $serializer = $this->container->get('serializer');
+            $json_content = $serializer->serialize($entities, 'json');
 
-        $response = new JsonResponse();
-        $response->setData($entities);
-
+            $response = new JsonResponse();
+            $response->setContent(utf8_decode($json_content));
+        }
+        else{
+            $response = new Response(
+                '403 - Access Forbidden',
+                Response::HTTP_FORBIDDEN,
+                array('content-type' => 'text/html')
+            );
+        }
         return $response;
+
     }
 
     public function indexJsonAction()
@@ -63,58 +78,84 @@ class UserRelationshipController extends Controller
      */
     public function createAction(Request $request)
     {
-        $new_rel = new UserRelationship();
         
-        $params = $request->request->get("json_str");
-        $params = stripslashes($params);
-        $relation_params = json_decode(trim($params, '"'));
-        unset($params);
-        $em = $this->getDoctrine()->getManager();
+        if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
+            $params = $request->request->get("json_str");
+            $params = stripslashes($params);
+            $relation_params = json_decode(trim($params, '"'));
+            unset($params);
+            $em = $this->getDoctrine()->getManager();
 
-        // Check that there's a valid relationship type
-        $relationship_type = $relation_params->type;
-        if($relationship_type == 'FRIEND_REQUEST' || $relationship_type != 'BLOCK'){
-            $target_username = $relation_params->target_user;
+            // Check that there's a valid relationship type
+            $relationship_type = 'FRIEND_REQUEST';
+            $target_username = $relation_params->target_username;
+
+            $source_user = $this->get('security.context')->getToken()->getUser();
             $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findBy(array('username' => $target_username));
-            
 
             if(!empty($target_user)){
-                $source_user = $this->get('security.context')->getToken()->getUser();
+                // Query to check that the use is not friends with the target user already
+                $check_query = $em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users AND :target_id MEMBER OF rel.users');
+                $check_query->setParameter('user_id', $source_user);
+                $check_query->setParameter('target_id', $target_user[0]);
+                $entities = $check_query->getResult();
 
-                $new_rul->setCreator($source_user);
+                if(empty($entities)){
+                    $new_rel = new UserRelationship();
+                    $new_rel->setCreatorUser($source_user);
 
-                $new_rel->addUser($source_user);
-                $new_rel->addUser($target_user);
+                    $new_rel->setCreatorUserKey("creatorkey");
+                    $new_rel->setTargetUserKey("unset");
 
-                $new_rel->setCreatorKey("creatorkey");
-                $new_rel->setTargetKey("unset");
+                    $new_rel->setRelationshipType($relationship_type);
+                    $new_rel->setRelationshipKey("default");
 
-                $new_rel->setRelationshipType($relationship_type);
+                    $new_rel->addUser($source_user);
+                    $new_rel->addUser($target_user[0]);
 
-                $new_rel->persist($entity);
-                $new_rel->flush();
+                    $em->persist($new_rel);
+                    $em->flush();
 
-                // Everything is golden, respond with 200
-                $response = new Response(
-                    'Content',
-                    Response::HTTP_OK,
-                    array('content-type' => 'text/html')
-                );
-            }
+                    // Everything is golden, respond with 200
+                    $response = new Response(
+                        'Content',
+                        Response::HTTP_OK,
+                        array('content-type' => 'text/json')
+                    );
+                    return $response;
+                }
+                // We're already friends with the target
+                else{
+                    $response = new Response(
+                        'Already friends with this user',
+                        Response::HTTP_INTERNAL_SERVER_ERROR,
+                        array('content-type' => 'text/json')
+                    );
+                    return $response;
+                }
+
+            // Something has gone wrong, respond with error
+            $response = new Response(
+                'No user with that name',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                array('content-type' => 'text/json')
+            );
+        }
+        else{
+            $response = new Response(
+                'No user with that name',
+                Response::HTTP_FORBIDDEN,
+                array('content-type' => 'text/json')
+            );
         }
 
-        // Something has gone wrong, respond with error
-        $response = new Response(
-            'Content',
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            array('content-type' => 'text/html')
-        );
-    }
+        return $response;
+    }}
 
     /**
-     * Creates a new UserRelationship entity.
+     * Confirms a UserRelationship entity.
      *
-     * @Route("/confirm/{id}", name="user_relationship_create")
+     * @Route("/confirm/{id}", name="user_relationship_confirm")
      * @Method("POST")
      */
     public function confirmAction($id){
@@ -141,188 +182,4 @@ class UserRelationshipController extends Controller
             array('content-type' => 'text/html')
         );
     }
-
-    /**
-    * Creates a form to create a UserRelationship entity.
-    *
-    * @param UserRelationship $entity The entity
-    *
-    * @return \Symfony\Component\Form\Form The form
-    */
-    private function createCreateForm(UserRelationship $entity)
-    {
-        $form = $this->createForm(new UserRelationshipType(), $entity, array(
-            'action' => $this->generateUrl('user_relationship_create'),
-            'method' => 'POST',
-        ));
-
-        $form->add('submit', 'submit', array('label' => 'Create'));
-
-        return $form;
-    }
-
-    /**
-     * Displays a form to create a new UserRelationship entity.
-     *
-     * @Route("/new", name="user_relationship_new")
-     * @Method("GET")
-     * @Template()
-     */
-    public function newAction()
-    {
-        $entity = new UserRelationship();
-        $form   = $this->createCreateForm($entity);
-
-        return array(
-            'entity' => $entity,
-            'form'   => $form->createView(),
-        );
-    }
-
-    /**
-     * Finds and displays a UserRelationship entity.
-     *
-     * @Route("/{id}", name="user_relationship_show")
-     * @Method("GET")
-     * @Template()
-     */
-    public function showAction($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('HushBundle:UserRelationship')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find UserRelationship entity.');
-        }
-
-        $deleteForm = $this->createDeleteForm($id);
-
-        return array(
-            'entity'      => $entity,
-            'delete_form' => $deleteForm->createView(),
-        );
-    }
-
-    /**
-     * Displays a form to edit an existing UserRelationship entity.
-     *
-     * @Route("/{id}/edit", name="user_relationship_edit")
-     * @Method("GET")
-     * @Template()
-     */
-    public function editAction($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('HushBundle:UserRelationship')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find UserRelationship entity.');
-        }
-
-        $editForm = $this->createEditForm($entity);
-        $deleteForm = $this->createDeleteForm($id);
-
-        return array(
-            'entity'      => $entity,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        );
-    }
-
-    /**
-    * Creates a form to edit a UserRelationship entity.
-    *
-    * @param UserRelationship $entity The entity
-    *
-    * @return \Symfony\Component\Form\Form The form
-    */
-    private function createEditForm(UserRelationship $entity)
-    {
-        $form = $this->createForm(new UserRelationshipType(), $entity, array(
-            'action' => $this->generateUrl('user_relationship_update', array('id' => $entity->getId())),
-            'method' => 'PUT',
-        ));
-
-        $form->add('submit', 'submit', array('label' => 'Update'));
-
-        return $form;
-    }
-    /**
-     * Edits an existing UserRelationship entity.
-     *
-     * @Route("/{id}", name="user_relationship_update")
-     * @Method("PUT")
-     * @Template("HushBundle:UserRelationship:edit.html.twig")
-     */
-    public function updateAction(Request $request, $id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('HushBundle:UserRelationship')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find UserRelationship entity.');
-        }
-
-        $deleteForm = $this->createDeleteForm($id);
-        $editForm = $this->createEditForm($entity);
-        $editForm->handleRequest($request);
-
-        if ($editForm->isValid()) {
-            $em->flush();
-
-            return $this->redirect($this->generateUrl('user_relationship_edit', array('id' => $id)));
-        }
-
-        return array(
-            'entity'      => $entity,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        );
-    }
-    /**
-     * Deletes a UserRelationship entity.
-     *
-     * @Route("/{id}", name="user_relationship_delete")
-     * @Method("DELETE")
-     */
-    public function deleteAction(Request $request, $id)
-    {
-        $form = $this->createDeleteForm($id);
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $entity = $em->getRepository('HushBundle:UserRelationship')->find($id);
-
-            if (!$entity) {
-                throw $this->createNotFoundException('Unable to find UserRelationship entity.');
-            }
-
-            $em->remove($entity);
-            $em->flush();
-        }
-
-        return $this->redirect($this->generateUrl('user_relationship'));
-    }
-
-    /**
-     * Creates a form to delete a UserRelationship entity by id.
-     *
-     * @param mixed $id The entity id
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm($id)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('user_relationship_delete', array('id' => $id)))
-            ->setMethod('DELETE')
-            ->add('submit', 'submit', array('label' => 'Delete'))
-            ->getForm()
-        ;
-    }
-
 }

@@ -291,8 +291,36 @@ input[type=text]:focus,input[type=password]:focus,input[type=email]:focus
 }
 
 
-label {
+label
+{
     clear: left;
     float: left;
     width: 7em; /* or whatever length suits */
+}
+
+#friends ul li{
+	padding-left:5px;
+}
+
+.message-time{
+	padding-right:5px;
+}
+
+.sender{
+	padding-right:5px;
+}
+
+#chat ul{
+	list-style: none;
+}
+
+#chat ul li{
+	padding-bottom:2px;
+}
+
+#chat-controls{
+	padding-top:5px;
+	border-top-style:dashed;
+	border-top-width:1px;
+	border-top-color:#322e2b;
 }

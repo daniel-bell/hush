@@ -105,6 +105,25 @@ class UsersController extends Controller
     }
 
     /**
+     * Get the current user as a JSON response
+     *
+     * @Route("/me", name="users_me")
+     * @Method("GET")
+     * @Template()
+     */
+    public function meAction() {
+        $me = $this->getUser();
+        $response = null;
+
+        if ($me != null) {
+          $response = new JsonResponse();
+          $response->setData($me);
+        } 
+
+        return $response;
+    }
+
+    /**
      * Finds and displays a Users entity.
      *
      * @Route("/{id}", name="users_show")
@@ -145,9 +164,8 @@ class UsersController extends Controller
 
         $formattedRelationships = array_map("json_encode", $relationships->toArray());
 
-
         // The serializer was getting in the way
-        $formattedJson = implode($formattedRelationships, "");
+        $formattedJson = implode($formattedRelationships, ", ");
         $formattedJson = '[' . $formattedJson . ']';
 
         $response = new Response();
