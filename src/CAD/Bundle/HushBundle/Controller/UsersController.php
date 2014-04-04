@@ -19,24 +19,6 @@ use CAD\Bundle\HushBundle\Form\UsersType;
  */
 class UsersController extends Controller
 {
-
-    /**
-     * Lists all Users entities.
-     *
-     * @Route("/", name="users")
-     * @Method("GET")
-     * @Template()
-     */
-    public function indexAction()
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entities = $em->getRepository('HushBundle:Users')->findAll();
-
-        return array(
-            'entities' => $entities,
-        );
-    }
     /**
      * Creates a new Users entity.
      *
@@ -124,85 +106,6 @@ class UsersController extends Controller
     }
 
     /**
-     * Finds and displays a Users entity.
-     *
-     * @Route("/{id}", name="users_show")
-     * @Method("GET")
-     * @Template()
-     */
-    public function showAction($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('HushBundle:Users')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Users entity.');
-        }
-
-        $deleteForm = $this->createDeleteForm($id);
-
-        return array(
-            'entity'      => $entity,
-            'delete_form' => $deleteForm->createView(),
-        );
-    }
-
-    /**
-     * Get the users relationships
-     * @Route("/{id}/relationships", name="users_relationships")
-     * @Method("GET")
-     * @Template()
-     */
-    public function relationshipsAction($id) {
-
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('HushBundle:Users')->find($id);
-
-        $relationships = $entity->getRelationships();
-
-        $formattedRelationships = array_map("json_encode", $relationships->toArray());
-
-        // The serializer was getting in the way
-        $formattedJson = implode($formattedRelationships, ", ");
-        $formattedJson = '[' . $formattedJson . ']';
-
-        $response = new Response();
-        $response->setContent($formattedJson);
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
-    }
-
-    /**
-     * Displays a form to edit an existing Users entity.
-     *
-     * @Route("/{id}/edit", name="users_edit")
-     * @Method("GET")
-     * @Template()
-     */
-    public function editAction($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('HushBundle:Users')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Users entity.');
-        }
-
-        $editForm = $this->createEditForm($entity);
-        $deleteForm = $this->createDeleteForm($id);
-
-        return array(
-            'entity'      => $entity,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        );
-    }
-
-    /**
     * Creates a form to edit a Users entity.
     *
     * @param Users $entity The entity
@@ -220,6 +123,7 @@ class UsersController extends Controller
 
         return $form;
     }
+    
     /**
      * Edits an existing Users entity.
      *
@@ -237,7 +141,6 @@ class UsersController extends Controller
             throw $this->createNotFoundException('Unable to find Users entity.');
         }
 
-        $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createEditForm($entity);
         $editForm->handleRequest($request);
 
