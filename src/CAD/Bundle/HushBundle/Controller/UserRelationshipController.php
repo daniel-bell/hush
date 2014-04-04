@@ -34,12 +34,13 @@ class UserRelationshipController extends Controller
      */
     public function indexAction()
     {
+        // Check if the user is logged in, if not 403
         if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
             $em = $this->getDoctrine()->getManager();
             $curr_user = $this->get('security.context')->getToken()->getUser();
 
             $query = $em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users');
-            $query->setParameter('user_id', $curr_user->getId());
+            $query->setParameter('user_id', $curr_user);
             $entities = $query->getResult();
 
             $serializer = $this->container->get('serializer');
@@ -79,9 +80,6 @@ class UserRelationshipController extends Controller
     {
         
         if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
-
-            $new_rel = new UserRelationship();
-            
             $params = $request->request->get("json_str");
             $params = stripslashes($params);
             $relation_params = json_decode(trim($params, '"'));
@@ -92,11 +90,18 @@ class UserRelationshipController extends Controller
             $relationship_type = 'FRIEND_REQUEST';
             $target_username = $relation_params->target_username;
 
-                $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findBy(array('username' => $target_username));
+            $source_user = $this->get('security.context')->getToken()->getUser();
+            $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findBy(array('username' => $target_username));
 
-                if(!empty($target_user)){
-                    $source_user = $this->get('security.context')->getToken()->getUser();
+            if(!empty($target_user)){
+                // Query to check that the use is not friends with the target user already
+                $check_query = $em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users AND :target_id MEMBER OF rel.users');
+                $check_query->setParameter('user_id', $source_user);
+                $check_query->setParameter('target_id', $target_user[0]);
+                $entities = $check_query->getResult();
 
+                if(empty($entities)){
+                    $new_rel = new UserRelationship();
                     $new_rel->setCreatorUser($source_user);
 
                     $new_rel->setCreatorUserKey("creatorkey");
@@ -117,10 +122,17 @@ class UserRelationshipController extends Controller
                         Response::HTTP_OK,
                         array('content-type' => 'text/json')
                     );
-
                     return $response;
                 }
-
+                // We're already friends with the target
+                else{
+                    $response = new Response(
+                        'Already friends with this user',
+                        Response::HTTP_INTERNAL_SERVER_ERROR,
+                        array('content-type' => 'text/json')
+                    );
+                    return $response;
+                }
 
             // Something has gone wrong, respond with error
             $response = new Response(
@@ -138,10 +150,10 @@ class UserRelationshipController extends Controller
         }
 
         return $response;
-    }
+    }}
 
     /**
-     * Creates a new UserRelationship entity.
+     * Confirms a UserRelationship entity.
      *
      * @Route("/confirm/{id}", name="user_relationship_confirm")
      * @Method("POST")
