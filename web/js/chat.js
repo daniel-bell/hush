@@ -32,6 +32,19 @@ function addFriendListener() {
 
 }
 
+/**
+ * Given a number, add a zero if it is less than 2 in length
+ */
+function padNumber(num) {
+    var newNum = '0' + num;
+
+    if (newNum.length < 3) {
+        return newNum;
+    } else {
+        return num;
+    }
+}
+
 function fetchLatestMessages() {
     var xmlHttp = new XMLHttpRequest();
 
@@ -49,12 +62,14 @@ function fetchLatestMessages() {
             for (var i in messages) {
                 // Only add new messages
                 if (messageList.indexOf(messages[i].id) < 0) {
-                    var date = messages[i].sentTime.date;
+                    var date = new Date(messages[i].sentTime.date.split(" ").join("T"));
+                    var dateString = '' + padNumber(date.getHours()) + ':' + padNumber(date.getMinutes()) + ':' + padNumber(date.getSeconds());
                     var messageContent = messages[i].messageContent;
-                  
+                    var sender = messages[i].sendUsername;
                   
                     var el_li = document.createElement("li");
-                    el_li.innerHTML =   '<span class="date">' + date + '</span>' + 
+                    el_li.innerHTML =   '<time date-time="' + date.toString() +'">' + dateString + '</time>' + 
+                                        '<span class="sender">' + sender + '</span>' +
                                         '<span class="message-content">' + messageContent + '</span>';
 
                     // Append the converted object
@@ -209,14 +224,6 @@ function addFriend(){
           if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
               var response = xmlHttp.responseText;
 
-              ul = document.getElementById('friends-list');
-              // Add to the friend list live
-              el = document.createElement("li");
-              el.setAttribute('user-id', user.id);
-              // TODO: Add a wee checkmark for accepting?
-              el.innerHTML = friend_name;
-
-              ul.appendChild(el);
             }
        }
 
@@ -238,4 +245,4 @@ friend_form.addEventListener('click', addFriend);
 getUserId();
 
 // Check messages every second
-var intervalId = window.setInterval(fetchLatestMessages, 1000);
+//var intervalId = window.setInterval(fetchLatestMessages, 1000);
