@@ -236,3 +236,6 @@ chat_form.addEventListener('click', sendMessage);
 var friend_form = document.getElementById('add-friend-form').elements[1];
 friend_form.addEventListener('click', addFriend);
 getUserId();
+
+// Check messages every second
+var intervalId = window.setInterval(fetchLatestMessages, 1000);

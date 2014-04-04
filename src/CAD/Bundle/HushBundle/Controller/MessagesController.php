@@ -190,14 +190,19 @@ class MessagesController extends Controller
         // This limit could become a problem
         $limit = 50;
 
-        $entities = $em->getRepository('HushBundle:Messages')->findBy(
-          array(
-            'sendUser' => $userId,
-            'targetUser' => $friend_id
-          ), 
-          array('sentTime' => 'DESC'),
-          $limit
-        );
+        $query = $em->createQuery('
+          SELECT rel from HushBundle:Messages rel 
+          WHERE (
+            (rel.sendUser = :user_id AND rel.targetUser = :friend_id) 
+            OR 
+            (rel.sendUser = :friend_id AND rel.targetUser = :user_id )) 
+          ORDER BY rel.sentTime
+        ');
+        $query->setMaxResults($limit);
+        $query->setParameter('user_id', $userId);
+        $query->setParameter('friend_id', $friend_id);
+
+        $entities = $query->getResult();
 
         $response = new JsonResponse();
         $response->setData($entities);
