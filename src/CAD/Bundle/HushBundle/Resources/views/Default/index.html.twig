@@ -5,7 +5,15 @@
 		<div class="unit span-grid landing-page">
 			<div class="unit one-of-two">
                 <div class="panel">
-                    Stuff about hush
+                    <p>
+                        Welcome to hush, a secure chat service designed to protect your conversations.
+                    </p>
+                    <p>
+                        Everything you say to your friends online is encrypted in your web browser before it is send to us.
+                    </p>
+                    <p>
+                        This means that even if someone wanted to eavesdrop on your conversations it would be impossible without access to either your, or your contact's computer.
+                    </p>
                 </div>
 			</div>
 			<div class="unit one-of-two unit-right">
@@ -36,6 +44,7 @@
                                         <label for="password">Password:</label>
                                         <input type="password" id="password" name="_password" /><br />
 
+                                        <input type="hidden" name="_csrf_token" value="{{  csrf_token('authenticate') }}" />
                                         <button class="flat-button flat-button-green" type="submit">Login</button>
                                 </form>
                             </div>

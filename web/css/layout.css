@@ -214,7 +214,6 @@ input
     border-radius:3px;
 }
 
-
 input[type=text],input[type=password],input[type=email]
 {
     outline: none ;
@@ -224,6 +223,13 @@ input[type=text],input[type=password],input[type=email]
     margin-bottom:5px;
     padding:5px;
     color: black;
+    min-width:100%
+}
+
+#chat input[type=text]
+{
+    min-width:85%;
+    max-width:85%;
 }
 
 input[type=text]:focus,input[type=password]:focus,input[type=email]:focus
@@ -302,6 +308,7 @@ label
 	padding-left:5px;
 }
 
+
 .message-time{
 	padding-right:5px;
 }
@@ -323,4 +330,26 @@ label
 	border-top-style:dashed;
 	border-top-width:1px;
 	border-top-color:#322e2b;
+}
+
+#friends ul
+{
+    padding:14px;
+    list-style:none;
+}
+
+#friends ul li.active
+{
+    list-style:none;
+    background-color:#29c673;
+    color:#FFFFFF;
+    font-weight:bold;
+}
+
+@media screen and (max-width: 1085px)
+{
+    #chat input[type=text]
+    {
+        min-width:100%;
+    }
 }
