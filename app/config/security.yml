@@ -26,6 +26,7 @@ security:
             form_login:
                 check_path: /login_check/
                 login_path: /
+                csrf_provider: form.csrf_provider
             logout:
                 path:   /logout
                 target: /

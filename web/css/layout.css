@@ -3,11 +3,18 @@
 body
 {
     font-family: 'Open Sans', sans-serif;
+    background-color:#34495e;
+}
+
+footer
+{
+   padding-left:10px;
+   padding-right:10px;
 }
 
 #navbar{
 	min-height:45px;
-	background-color:#000;
+	background-color: #1b2937;
 	color:#fff;
 	padding:0px;
 	margin:0px;
@@ -29,7 +36,7 @@ body
 }
 
 .nav-title h1 a:hover{
-	color:#fefefe;
+	color:#29c673;
 	text-decoration: underline;
 }
 
@@ -76,9 +83,6 @@ body
 	padding-top:15px;
     padding-left:10px;
     padding-right:10px;
-	border-bottom-style:dashed;
-	bordom-bottom-width:1px;
-	border-bottom-color:#fefefe;
 }
 
 footer{
@@ -167,6 +171,20 @@ button
     background-color:#2ecc71;
 }
 
+.flat-button-small
+{
+    margin-top:-10px;
+    margin-right:0px;
+    padding:14px 26px;
+    line-height: 30%;
+    vertical-align:middle;
+    text-align:center;
+    cursor:pointer;
+    font-weight:bold;
+    border-radius: 3px;
+    text-decoration: none;
+}
+
 .panel
 {
     padding:10px;
@@ -196,7 +214,6 @@ input
     border-radius:3px;
 }
 
-
 input[type=text],input[type=password],input[type=email]
 {
     outline: none ;
@@ -206,6 +223,13 @@ input[type=text],input[type=password],input[type=email]
     margin-bottom:5px;
     padding:5px;
     color: black;
+    min-width:100%
+}
+
+#chat input[type=text]
+{
+    min-width:85%;
+    max-width:85%;
 }
 
 input[type=text]:focus,input[type=password]:focus,input[type=email]:focus
@@ -231,39 +255,30 @@ input[type=text]:focus,input[type=password]:focus,input[type=email]:focus
     display:block;
     float:left;
     color:#FFF;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
-    -moz-border-radius-topleft: 4px;
-    -moz-border-radius-topright: 4px;
-    -moz-border-radius-bottomright: 0px;
-    -moz-border-radius-bottomleft: 0px;
     border-top-left-radius:4px;
     border-top-right-radius: 4px;
     border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px;
-    background: #C9C9C9; /* old browsers */
-    background: -moz-linear-gradient(top, #0C91EC 0%, #257AB6 100%); /* firefox */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#0C91EC), color-stop(100%,#257AB6)); /* webkit */
+    background: #2ecc71;
+    text-shadow: 0 1px rgba(0,0,0,0.3)
 }
 
 .tabs > ul > li:hover{
-    background: #FFFFFF; /* old browsers */
-    background: -moz-linear-gradient(top, #FFFFFF 0%, #F3F3F3 10%, #F3F3F3 50%, #FFFFFF 100%); /* firefox */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(10%,#F3F3F3), color-stop(50%,#F3F3F3), color-stop(100%,#FFFFFF)); /* webkit */
+    background-color:#27ae60; /* old browsers */
     cursor:pointer;
-    color: #333;
+    color: #FFFFFF;
 }
 
 .tabs > ul > li.tabActiveHeader{
     background: #FFFFFF; /* old browsers */
-    background: -moz-linear-gradient(top, #FFFFFF 0%, #F3F3F3 10%, #F3F3F3 50%, #FFFFFF 100%); /* firefox */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(10%,#F3F3F3), color-stop(50%,#F3F3F3), color-stop(100%,#FFFFFF)); /* webkit */
     cursor:pointer;
     color: #333;
+    border:1px solid #29c673;
+    border-bottom:0px;
 }
 
 .tabscontent {
+    border:1px solid;
     -moz-border-radius-topleft: 0px;
     -moz-border-radius-topright: 4px;
     -moz-border-radius-bottomright: 4px;
@@ -272,17 +287,27 @@ input[type=text]:focus,input[type=password]:focus,input[type=email]:focus
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
     border-bottom-left-radius: 4px;
+    border-color:#29c673;
+    border-top:0px;
     padding:10px 10px 25px;
     background: #FFFFFF; /* old browsers */
-    background: -moz-linear-gradient(top, #FFFFFF 0%, #FFFFFF 90%, #e4e9ed 100%); /* firefox */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(90%,#FFFFFF), color-stop(100%,#e4e9ed)); /* webkit */
     margin:0;
     color:#333;
+    box-shadow:0 3px 0 0 #27ae60;
+}
+
+
+label
+{
+    clear: left;
+    float: left;
+    width: 7em; /* or whatever length suits */
 }
 
 #friends ul li{
 	padding-left:5px;
 }
+
 
 .message-time{
 	padding-right:5px;
@@ -305,4 +330,26 @@ input[type=text]:focus,input[type=password]:focus,input[type=email]:focus
 	border-top-style:dashed;
 	border-top-width:1px;
 	border-top-color:#322e2b;
+}
+
+#friends ul
+{
+    padding:14px;
+    list-style:none;
+}
+
+#friends ul li.active
+{
+    list-style:none;
+    background-color:#29c673;
+    color:#FFFFFF;
+    font-weight:bold;
+}
+
+@media screen and (max-width: 1085px)
+{
+    #chat input[type=text]
+    {
+        min-width:100%;
+    }
 }
