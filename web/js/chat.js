@@ -238,12 +238,24 @@ function addFriend(){
 /**
  * Globally setup some listeners
  */
+getUserId();
+
 var chat_form = document.getElementById('send-messages').elements[1];
 chat_form.addEventListener('click', sendMessage);
+messageBox = chat_form.elements["chat-text"];
+messageBox.addEventListener('keypress', function(event) {
+    console.log("Enter");
+    if (event.which == 13 || event.keyCode == 13) {
+        
+        chat_form.submit();
+        return true;
+    }
+
+    return false;
+})
 
 var friend_form = document.getElementById('add-friend-form').elements[1];
 friend_form.addEventListener('click', addFriend);
-getUserId();
 
 // Check messages every second
-//var intervalId = window.setInterval(fetchLatestMessages, 1000);
+var intervalId = window.setInterval(fetchLatestMessages, 1000);
