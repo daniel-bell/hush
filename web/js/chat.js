@@ -109,7 +109,7 @@ function fetchFriendsList() {
                 for (var u in users) {
                     user = users[u];
 
-                    if (user.id != current_user.id) {
+                    if (user.id != current_user) {
                         el = document.createElement("li");
                         el.setAttribute('user-id', user.id);
                         // TODO: Add a wee checkmark for accepting?
@@ -135,13 +135,13 @@ function sendMessage() {
     if (activeTarget > 0) {
         console.log("Send Message");
 
-        var form, messageBox, messageText, xmlHttp, params;
+        var chat_form, messageBox, messageText, xmlHttp, params;
 
-        form = document.getElementById('chat-controls').children[0];
-
-        messageBox = form.elements["chat-text"];
-
+        var chat_form = document.getElementById('send-messages');
+        messageBox = chat_form.children[0];
         messageText = messageBox.value;
+        console.log(messageText);
+
         // TODO: Test override
 
         // Check the box isn't just empty, or empty strings
@@ -192,7 +192,7 @@ function getUserId() {
 
     xmlHttp.onreadystatechange = function() {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-            current_user = JSON.parse(xmlHttp.responseText);
+            current_user = xmlHttp.responseText;
         }
     }
 
@@ -201,16 +201,12 @@ function getUserId() {
 }
 
 function addFriend(){
-  console.log("Add friend");
-
   var form, friend_box, friend_name, xmlHttp, params;
 
   form = document.getElementById("add-friend").children[0];
   friend_box = form.elements["friend-name"];
 
   friend_name = friend_box.value;
-
-  console.log(friend_name)
 
   if (friend_name != "") {
       xmlHttp = new XMLHttpRequest();
@@ -222,9 +218,9 @@ function addFriend(){
        }
 
        xmlHttp.onreadystatechange = function() {
-          if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+          if (xmlHttp.readyState) {
               var response = xmlHttp.responseText;
-
+                console.log(response);
             }
        }
 
@@ -240,22 +236,24 @@ function addFriend(){
  */
 getUserId();
 
-var chat_form = document.getElementById('send-messages').elements[1];
-chat_form.addEventListener('click', sendMessage);
-messageBox = chat_form.elements["chat-text"];
+console.log("adding friend listener");
+var friend_form = document.getElementById('add-friend-form').elements[1];
+friend_form.addEventListener('click', addFriend);
+
+var chat_form = document.getElementById('send-messages');
+chat_form.elements[1].addEventListener('click', sendMessage);
+messageBox = chat_form.elements[0];
+
 messageBox.addEventListener('keypress', function(event) {
     console.log("Enter");
     if (event.which == 13 || event.keyCode == 13) {
-        
+
         chat_form.submit();
         return true;
     }
 
     return false;
 })
-
-var friend_form = document.getElementById('add-friend-form').elements[1];
-friend_form.addEventListener('click', addFriend);
 
 // Check messages every second
 var intervalId = window.setInterval(fetchLatestMessages, 1000);

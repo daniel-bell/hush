@@ -94,7 +94,7 @@ class UsersController extends Controller
      * @Template()
      */
     public function meAction() {
-        $me = $this->getUser();
+        $me = $this->get('security.context')->getToken()->getUser()->getId();
         $response = null;
 
         if ($me != null) {
