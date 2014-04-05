@@ -77,47 +77,86 @@ class MessagesController extends Controller
      */
     public function createAction(Request $request)
     {
-        $entity = new Messages();
+        if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
+            try{
+                $entity = new Messages();
 
-        // Grab the json_str from the POST request
-        $params = $request->request->get("json_str");
-        $params = stripslashes($params);
-        $message_params = json_decode(trim($params, '"'));
-        unset($params);
+                // Grab the json_str from the POST request
+                $params = $request->request->get("json_str");
+                $params = stripslashes($params);
+                $message_params = json_decode(trim($params, '"'));
+                unset($params);
 
-        $entity->setMessageContent($message_params->messageContent);
+                $entity->setMessageContent($message_params->messageContent);
 
-        $date = $message_params->sentTime->date;
-        $time = $message_params->sentTime->time;
+                $date = $message_params->sentTime->date;
+                $time = $message_params->sentTime->time;
 
-        // Create a date from a mangled set of strings
-        $entity->setSentTime(new \DateTime(
-          $date->year . '-' .
-          $date->month . '-' .
-          $date->day . ' ' .
-          $time->hour . ':' .
-          $time->minute));
+                // Create a date from a mangled set of strings
+                $entity->setSentTime(new \DateTime(
+                  $date->year . '-' .
+                  $date->month . '-' .
+                  $date->day . ' ' .
+                  $time->hour . ':' .
+                  $time->minute));
 
-        $em = $this->getDoctrine()->getManager();
+                $em = $this->getDoctrine()->getManager();
 
-        // Find the users in the database
-        // TODO: Catch exceptions
-        $targetUser = $em->getRepository('HushBundle:Users')->find($message_params->targetUser);
-        $sendUser = $this->getUser();
+                $source_user = $this->get('security.context')->getToken()->getUser();
+                $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('id' => $message_params->targetUser));
 
-        $entity->setTargetUser($targetUser);
-        $entity->setsendUser($sendUser);
-        $entity->setMessageKey($message_params->messageKey);
+                // Error if the target user does not exist
+                if($target_user != null){
+                    // Check that the source and target user are in a relationship
+                    $checker_service = $this->get('relationship_checker');
+                    if($checker_service->inRelationship($source_user, $target_user)){
+                        $entity->setTargetUser($target_user);
+                        $entity->setsendUser($source_user);
+                        $entity->setMessageKey($message_params->messageKey);
 
-        $em->persist($entity);
-        $em->flush();
+                        $em->persist($entity);
+                        $em->flush();
 
-        // TODO: Change response code on failure
-        $response = new Response(
-            'Content',
-            Response::HTTP_OK,
-            array('content-type' => 'text/html')
-        );
+                        // Everything worked, 200 response
+                        $response = new Response(
+                            'Message Sent',
+                            Response::HTTP_OK,
+                            array('content-type' => 'text/plain')
+                        );
+                    }
+                    else{
+                        $response = new Response(
+                            'You can\'t send a message to someone you\'re not friends with: ' . $target_user->getUsername(),
+                            Response::HTTP_INTERNAL_SERVER_ERROR,
+                            array('content-type' => 'text/plain')
+                        );
+                    }
+                }
+                else{
+                    $response = new Response(
+                        'Sending message failed, target user does not exist',
+                        Response::HTTP_INTERNAL_SERVER_ERROR,
+                        array('content-type' => 'text/plain')
+                    );
+                }
+            }
+            catch(Exception $ex){
+                // Response 500 with the exception error
+                // Temporary until exceptions are indentified and caught
+                $response = new Response(
+                    'Error saving message: ' . $ex->getMessage(),
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    array('content-type' => 'text/plain')
+                );
+            }
+        }
+        else{
+            $response = new Response(
+                'You are not logged in.',
+                Response::HTTP_FORBIDDEN,
+                array('content-type' => 'text/plain')
+            );
+        }
 
         return $response;
     }
