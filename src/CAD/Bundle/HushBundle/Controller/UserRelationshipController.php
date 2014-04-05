@@ -14,6 +14,7 @@ use CAD\Bundle\HushBundle\Entity\UserRelationship;
 use CAD\Bundle\HushBundle\Form\UserRelationshipType;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Exclude;
+use CAD\Bundle\HushBundle\Helpers\RelationshipChecker;
 
 /**
  * UserRelationship controller.
@@ -56,20 +57,10 @@ class UserRelationshipController extends Controller
                 array('content-type' => 'text/html')
             );
         }
-        return $response;
-
-    }
-
-    public function indexJsonAction()
-    {
-
-        $entities = $this->getAll();
-
-        $response = new JsonResponse();
-        $response->setData($entities);
 
         return $response;
     }
+
     /**
      * Creates a new UserRelationship entity.
      *
@@ -91,16 +82,12 @@ class UserRelationshipController extends Controller
             $target_username = $relation_params->target_username;
 
             $source_user = $this->get('security.context')->getToken()->getUser();
-            $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findBy(array('username' => $target_username));
+            $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('username' => $target_username));
 
             if(!empty($target_user)){
-                // Query to check that the use is not friends with the target user already
-                $check_query = $em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users AND :target_id MEMBER OF rel.users');
-                $check_query->setParameter('user_id', $source_user);
-                $check_query->setParameter('target_id', $target_user[0]);
-                $entities = $check_query->getResult();
+                $checker_service = $this->get('relationship_checker');
 
-                if(empty($entities)){
+                if(!$checker_service->inRelationship($source_user, $target_user)){
                     $new_rel = new UserRelationship();
                     $new_rel->setCreatorUser($source_user);
 
@@ -111,41 +98,32 @@ class UserRelationshipController extends Controller
                     $new_rel->setRelationshipKey("default");
 
                     $new_rel->addUser($source_user);
-                    $new_rel->addUser($target_user[0]);
+                    $new_rel->addUser($target_user);
 
                     $em->persist($new_rel);
                     $em->flush();
 
                     // Everything is golden, respond with 200
                     $response = new Response(
-                        'Content',
+                        'Friend request sent',
                         Response::HTTP_OK,
-                        array('content-type' => 'text/json')
+                        array('content-type' => 'text/plain')
                     );
-                    return $response;
                 }
                 // We're already friends with the target
                 else{
                     $response = new Response(
-                        'Already friends with this user',
+                        'Already friends with this user: ' . $target_username,
                         Response::HTTP_INTERNAL_SERVER_ERROR,
-                        array('content-type' => 'text/json')
+                        array('content-type' => 'text/plain')
                     );
-                    return $response;
                 }
-
-            // Something has gone wrong, respond with error
-            $response = new Response(
-                'No user with that name',
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                array('content-type' => 'text/json')
-            );
         }
         else{
             $response = new Response(
-                'No user with that name',
+                'You are not logged in',
                 Response::HTTP_FORBIDDEN,
-                array('content-type' => 'text/json')
+                array('content-type' => 'text/plain')
             );
         }
 
