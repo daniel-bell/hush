@@ -3,7 +3,6 @@
 namespace CAD\Bundle\HushBundle\Entity;
 
 use CAD\Bundle\HushBundle\Entity\UserRelationship;
-use JSONSerializable;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -19,7 +18,7 @@ use JMS\Serializer\Annotation\Expose;
  * @ORM\Entity
  * @ExclusionPolicy("all")
  */
-class Users implements UserInterface, JSONSerializable
+class Users implements UserInterface
 {
     /**
      * @var string
@@ -268,13 +267,6 @@ class Users implements UserInterface, JSONSerializable
             return false;
         }
     }
-
-    public function JSONSerialize() {
-      return array( 
-        'id' => $this->getId(),
-        'username' => $this->getUsername()
-      );
-	}
 
     public function __toString(){
         return $this->username;
