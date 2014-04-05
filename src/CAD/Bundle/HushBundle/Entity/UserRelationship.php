@@ -2,7 +2,6 @@
 
 namespace CAD\Bundle\HushBundle\Entity;
 
-use JSONSerializable;
 use Doctrine\ORM\Mapping as ORM;
 use CAD\Bundle\HushBundle\Entity\Users;
 use JMS\Serializer\Annotation\Type;
@@ -14,7 +13,7 @@ use JMS\Serializer\nnotation\Expose;
  * @ORM\Table(name="relationships")})
  * @ORM\Entity
  */
-class UserRelationship implements JSONSerializable
+class UserRelationship
 {
     /**
      * @ORM\ManyToMany(targetEntity="Users")
@@ -206,16 +205,6 @@ class UserRelationship implements JSONSerializable
         return $this->users[] = $user;
     }
 
-    public function JSONSerialize() {
-      $users = $this->getUsers()->toArray();
-
-      return array( 
-        'id' => $this->getId(),
-        'creator_user' => array_pop($users),
-        'target_user' => array_pop($users),
-        'relationship_type' => $this->getRelationshipType()
-      );
-    }
     /**
      * Constructor
      */
