@@ -177,28 +177,26 @@ function getUserId() {
 }
 
 function addFriend() {
-    var form, friend_name, xmlHttp, params;
-
-    var messageText = $("#friend-name").val();
+    var params;
+    var friend_name = $("#friend-name").val();
 
     if (friend_name != "") {
-        xmlHttp = new XMLHttpRequest();
-        xmlHttp.open('POST', '/user_relationship/new', true);
-        xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-
         params = {
-            "target_username": messageText
-        }
-
-        xmlHttp.onreadystatechange = function () {
-            if (xmlHttp.readyState) {
-                var response = xmlHttp.responseText;
-                console.log(response);
-            }
+            "target_username": friend_name
         }
 
         params = "json_str=" + JSON.stringify(params);
-        xmlHttp.send(params);
+
+        var request = $.ajax({
+            type: 'POST',
+            url: '/user_relationship/new',
+            data: params
+        });
+
+        request.fail(function (jqXHR, textStatus) {
+            console.log(jqXHR.responseText);
+        });
+
 
         $("#friend-name").val("");
     }
