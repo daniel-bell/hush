@@ -72,10 +72,10 @@ class MessagesController extends Controller
     /**
      * Creates a new Messages entity.
      *
-     * @Route("/", name="messages_create")
+     * @Route("/send", name="messages_create")
      * @Method("POST")
      */
-    public function createAction(Request $request)
+    public function sendAction(Request $request)
     {
         if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
             try{
@@ -110,9 +110,14 @@ class MessagesController extends Controller
                     // Check that the source and target user are in a relationship
                     $checker_service = $this->get('relationship_checker');
                     if($checker_service->inRelationship($source_user, $target_user)){
+                        $relationship = $checker_service->getRelationships($source_user, $target_user);
+
                         $entity->setTargetUser($target_user);
                         $entity->setsendUser($source_user);
                         $entity->setMessageKey($message_params->messageKey);
+                        $entity->setRelationship($relationship[0]);
+
+                        $relationship[0]->addMessage($entity);
 
                         $em->persist($entity);
                         $em->flush();
@@ -199,25 +204,18 @@ class MessagesController extends Controller
     }
 
     /**
-     * Get the latest messages sent to a user
+     * Get the latest messages sent by a user
      *
-     * @Route("/mylatest.json", name="get_latest_message")
-     * @Method("POST")
-     * @return JSON response of the latest id
+     * @Route("/inbox/{id}", name="messages_inbox")
+     * @Method("GET")
      */
-    public function getLatestMessages(Request $request)
+    public function inboxAction($id)
     {
-
         $em = $this->getDoctrine()->getManager();
+        $curr_user = $this->get('security.context')->getToken()->getUser();
+        $from_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('id' => $id));
 
-        $friend_id = intval($request->request->get("friend_id"));
-
-        $user_session = $this->getUser();
-        $userId = -1;
-
-        if ($user_session) {
-          $userId = $user_session->getId();
-        } else {
+        if (!$curr_user) {
             // Just fire a 503 response
             $response = new Response(
                 'Fail',
@@ -226,25 +224,29 @@ class MessagesController extends Controller
             return $response;
         }
 
-        // This limit could become a problem
-        $limit = 50;
+        if(!$from_user){
+            $response = new Response(
+                'No relationship',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                array('content-type' => 'text/html'));
+            return $response;
+        }
 
-        $query = $em->createQuery('
-          SELECT rel from HushBundle:Messages rel 
-          WHERE (
-            (rel.sendUser = :user_id AND rel.targetUser = :friend_id) 
-            OR 
-            (rel.sendUser = :friend_id AND rel.targetUser = :user_id )) 
-          ORDER BY rel.sentTime
-        ');
-        $query->setMaxResults($limit);
-        $query->setParameter('user_id', $userId);
-        $query->setParameter('friend_id', $friend_id);
+        $checker_service = $this->get('relationship_checker');
+        $relationship = $checker_service->getRelationships($curr_user, $from_user);
 
-        $entities = $query->getResult();
+        if(empty($relationship)){
+            $response = new Response(
+                'No relationship with user',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                array('content-type' => 'text/html'));
+            return $response;
+        }
+
+        $messages = $em->getRepository('CAD\Bundle\HushBundle\Entity\Messages')->findBy(array('relationship' => $relationship[0]));
 
         $response = new JsonResponse();
-        $response->setData($entities);
+        $response->setData($messages);
 
         return $response;
     }
