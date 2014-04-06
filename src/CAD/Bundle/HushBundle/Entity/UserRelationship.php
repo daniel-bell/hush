@@ -70,6 +70,11 @@ class UserRelationship
     private $id;
 
     /**
+     * @ORM\OneToMany(targetEntity="CAD\Bundle\HushBundle\Entity\Messages", mappedBy="relationship", cascade={"persist", "remove"})
+     */
+    private $messages;
+
+    /**
      * Set relationshipKey
      *
      * @param string $relationshipKey
@@ -85,7 +90,7 @@ class UserRelationship
     /**
      * Get relationshipKey
      *
-     * @return string 
+     * @return string
      */
     public function getRelationshipKey()
     {
@@ -108,7 +113,7 @@ class UserRelationship
     /**
      * Get creatorUserKey
      *
-     * @return string 
+     * @return string
      */
     public function getCreatorUserKey()
     {
@@ -131,7 +136,7 @@ class UserRelationship
     /**
      * Get targetUserKey
      *
-     * @return string 
+     * @return string
      */
     public function getTargetUserKey()
     {
@@ -154,7 +159,7 @@ class UserRelationship
     /**
      * Get relationshipType
      *
-     * @return string 
+     * @return string
      */
     public function getRelationshipType()
     {
@@ -164,7 +169,7 @@ class UserRelationship
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -174,7 +179,8 @@ class UserRelationship
     /**
      * Get the users in the relationship
      */
-    public function getUsers() {
+    public function getUsers()
+    {
         return $this->users;
     }
 
@@ -201,8 +207,17 @@ class UserRelationship
     /**
      * Add a user to the relationship
      */
-    public function addUser(\CAD\Bundle\HushBundle\Entity\Users $user) {
+    public function addUser(\CAD\Bundle\HushBundle\Entity\Users $user)
+    {
         return $this->users[] = $user;
+    }
+
+    /**
+     * Add a message to the relationship
+     */
+    public function addMessage(\CAD\Bundle\HushBundle\Entity\Messages $message)
+    {
+        return $this->messages[] = $message;
     }
 
     /**
@@ -239,7 +254,7 @@ class UserRelationship
     /**
      * Get creator_user
      *
-     * @return \CAD\Bundle\HushBundle\Entity\Users 
+     * @return \CAD\Bundle\HushBundle\Entity\Users
      */
     public function getCreatorUser()
     {
