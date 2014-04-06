@@ -23,7 +23,7 @@ function addFriendListener() {
 
                 // TODO: How do I remove?
                 this.setAttribute('class', "active");
-                user_id = parseInt(this.getAttribute('user-id'));
+                var user_id = parseInt(this.getAttribute('user-id'));
                 activeTarget = user_id;
                 fetchLatestMessages();
             });
@@ -46,47 +46,49 @@ function padNumber(num) {
 }
 
 function fetchLatestMessages() {
-    var xmlHttp = new XMLHttpRequest();
+    if(activeTarget != -1){
+        var xmlHttp = new XMLHttpRequest();
 
-    xmlHttp.onreadystatechange = function() {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-            var response = xmlHttp.responseText;
-            var messages = JSON.parse(response);
+        xmlHttp.onreadystatechange = function() {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                var response = xmlHttp.responseText;
+                var messages = JSON.parse(response);
 
-            var chat_message = document.getElementById("chat-list");
+                var chat_message = document.getElementById("chat-list");
 
-            // Reset the chat
-            chat_message.innerHTML = "";
-            messageList = [];
+                // Reset the chat
+                chat_message.innerHTML = "";
+                messageList = [];
 
-            for (var i in messages) {
-                // Only add new messages
-                if (messageList.indexOf(messages[i].id) < 0) {
-                    var date = new Date(messages[i].sentTime.date.split(" ").join("T"));
-                    var dateString = '' + padNumber(date.getHours()) + ':' + padNumber(date.getMinutes()) + ':' + padNumber(date.getSeconds());
-                    var messageContent = messages[i].messageContent;
-                    var sender = messages[i].sendUsername;
-                  
-                    var el_li = document.createElement("li");
-                    el_li.className = "message-ul";
-                    el_li.innerHTML =   '<span class="message-time"><time date-time="' + date.toString() +'">' + dateString + '</time></span>' + 
-                                        '<span class="sender">' + sender + ':</span>' +
-                                        '<span class="message-content">' + messageContent + '</span>';
+                for (var i in messages) {
+                    // Only add new messages
+                    if (messageList.indexOf(messages[i].id) < 0) {
+                        var date = new Date(messages[i].sentTime.date.split(" ").join("T"));
+                        var dateString = '' + padNumber(date.getHours()) + ':' + padNumber(date.getMinutes()) + ':' + padNumber(date.getSeconds());
+                        var messageContent = messages[i].messageContent;
+                        var sender = messages[i].sendUsername;
 
-                    // Append the converted object
-                    chat_message.appendChild(el_li); 
+                        var el_li = document.createElement("li");
+                        el_li.className = "message-ul";
+                        el_li.innerHTML =   '<span class="message-time"><time date-time="' + date.toString() +'">' + dateString + '</time></span>' +
+                                            '<span class="sender">' + sender + ':</span>' +
+                                            '<span class="message-content">' + messageContent + '</span>';
 
-                    messageList.push(messages[i].id);
+                        // Append the converted object
+                        chat_message.appendChild(el_li);
+
+                        messageList.push(messages[i].id);
+                    }
                 }
+
             }
 
-        } 
+        }
 
+        xmlHttp.open("GET", "messages/inbox/" + activeTarget, true);
+        xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        xmlHttp.send();
     }
-
-    xmlHttp.open("POST", "/messages/mylatest.json", true);
-    xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-    xmlHttp.send("friend_id=" + activeTarget);
 }
 
 /**
@@ -149,7 +151,7 @@ function sendMessage() {
         if (messageText != "") {
            xmlHttp = new XMLHttpRequest();
 
-           xmlHttp.open('POST', '/messages/', true);
+           xmlHttp.open('POST', '/messages/send', true);
            xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
 
            // Parameters
@@ -256,4 +258,4 @@ messageBox.addEventListener('keypress', function(event) {
 })
 
 // Check messages every second
-var intervalId = window.setInterval(fetchLatestMessages, 1000);
+var intervalId = window.setInterval(fetchLatestMessages, 3000);
