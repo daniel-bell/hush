@@ -36,7 +36,7 @@ class UserRelationshipController extends Controller
     public function indexAction()
     {
         // Check if the user is logged in, if not 403
-        if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
+        if ($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
             $em = $this->getDoctrine()->getManager();
             $curr_user = $this->get('security.context')->getToken()->getUser();
 
@@ -49,8 +49,7 @@ class UserRelationshipController extends Controller
 
             $response = new JsonResponse();
             $response->setContent(utf8_decode($json_content));
-        }
-        else{
+        } else {
             $response = new Response(
                 '403 - Access Forbidden',
                 Response::HTTP_FORBIDDEN,
@@ -69,8 +68,8 @@ class UserRelationshipController extends Controller
      */
     public function createAction(Request $request)
     {
-        
-        if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
+
+        if ($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
             $params = $request->request->get("json_str");
             $params = stripslashes($params);
             $relation_params = json_decode(trim($params, '"'));
@@ -84,10 +83,10 @@ class UserRelationshipController extends Controller
             $source_user = $this->get('security.context')->getToken()->getUser();
             $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('username' => $target_username));
 
-            if(!empty($target_user)){
+            if (!empty($target_user)) {
                 $checker_service = $this->get('relationship_checker');
 
-                if(!$checker_service->inRelationship($source_user, $target_user)){
+                if (!$checker_service->inRelationship($source_user, $target_user)) {
                     $new_rel = new UserRelationship();
                     $new_rel->setCreatorUser($source_user);
 
@@ -109,17 +108,24 @@ class UserRelationshipController extends Controller
                         Response::HTTP_OK,
                         array('content-type' => 'text/plain')
                     );
-                }
-                // We're already friends with the target
-                else{
+                } // We're already friends with the target
+                else {
                     $response = new Response(
                         'Already friends with this user: ' . $target_username,
                         Response::HTTP_INTERNAL_SERVER_ERROR,
                         array('content-type' => 'text/plain')
                     );
                 }
-        }
-        else{
+            } // No user found with that username
+            else {
+                $response = new Response(
+                    'Error',
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    array('content-type' => 'text/plain')
+                );
+            }
+        } // User not logged in
+        else {
             $response = new Response(
                 'You are not logged in',
                 Response::HTTP_FORBIDDEN,
@@ -128,7 +134,7 @@ class UserRelationshipController extends Controller
         }
 
         return $response;
-    }}
+    }
 
     /**
      * Confirms a UserRelationship entity.
@@ -136,21 +142,22 @@ class UserRelationshipController extends Controller
      * @Route("/confirm/{id}", name="user_relationship_confirm")
      * @Method("POST")
      */
-    public function confirmAction($id){
+    public function confirmAction($id)
+    {
         $em = $this->getDoctrine()->getManager();
 
         $entity = $em->getRepository('HushBundle:UserRelationship')->find($id);
         $curr_user = $this->get('security.context')->getToken()->getUser();
 
-        if($entity){
-            if($entity->getRelationshipType() == "FRIEND_REQUEST"){
-                if(in_array($curr_user, $entity->getUsers())){
-                    if($curr_user != $entity->getCreator()){
+        if ($entity) {
+            if ($entity->getRelationshipType() == "FRIEND_REQUEST") {
+                if (in_array($curr_user, $entity->getUsers())) {
+                    if ($curr_user != $entity->getCreator()) {
                         $entity->setRelationshipType("FRIEND_CONFIRMED");
                         $em->flush();
                     }
                 }
-            } 
+            }
         }
 
         // Something has gone wrong, respond with error
