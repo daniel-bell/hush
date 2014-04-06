@@ -63,7 +63,15 @@ class Messages implements JSONSerializable
      */
     private $sendUser;
 
-
+    /**
+     * @var \CAD\Bundle\HushBundle\Entity\UserRelationship
+     *
+     * @ORM\ManyToOne(targetEntity="CAD\Bundle\HushBundle\Entity\UserRelationship")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="relationship_id", referencedColumnName="id")
+     * })
+     */
+    private $relationship;
 
     /**
      * Set messageKey
@@ -153,6 +161,19 @@ class Messages implements JSONSerializable
     public function setTargetUser(\CAD\Bundle\HushBundle\Entity\Users $targetUser = null)
     {
         $this->targetUser = $targetUser;
+
+        return $this;
+    }
+
+    /**
+     * Set relationship
+     *
+     * @param \CAD\Bundle\HushBundle\Entity\UserRelationship $relationship
+     * @return Messages
+     */
+    public function setRelationship(\CAD\Bundle\HushBundle\Entity\UserRelationship $relationship = null)
+    {
+        $this->relationship = $relationship;
 
         return $this;
     }
