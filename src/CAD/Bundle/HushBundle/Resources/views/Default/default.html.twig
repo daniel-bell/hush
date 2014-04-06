@@ -1,42 +1,49 @@
 <!DOCTYPE html>
-    <head>
-            <title>hush - Encrypted Online Chat</title>
-            <meta charset="utf-8">
+<head>
+    <title>hush - Encrypted Online Chat</title>
+    <meta charset="utf-8">
+
+    <!-- Bootstrap CDN links -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+
     {% stylesheets 'css/*.css' %}
-            <link rel="stylesheet" type="text/css" href="{{ asset_url }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset_url }}"/>
     {% endstylesheets %}
-            <script src="/js/tabs.js"></script>
-    </head>
-    <body>
-            <div id="navbar">
-                <div class="grid">
-                    <div class="unit one-of-five nav-title">
-                        <h1 class="hush-title"><a href="/">hush</a></h1>
-                    </div>
-                    <div class="unit four-of-five nav-items">
-                        <ul>
-                                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                                    <li><a class="flat-button flat-button-red flat-button-small" href="/logout">Logout</a></li>
-                                {% endif %}
-                                    <li><a href="https://github.com/daniel-bell/hush"><i class="fa fa-github-alt fa-2x"></i></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            {% block body %}
-            {% endblock %}
-        <div class="span-grid">
-            <footer>
-                <div class="panel">
-                        Hush
-                    <br />
-                    <script>
-                        document.write('<a href="http://validator.w3.org/check?uri='+encodeURIComponent(document.URL)+'&charset=(detect+automatically)&doctype=Inline&group=0&user-agent=W3C_Validator%2F1.3+http%3A%2F%2Fvalidator.w3.org%2Fservices"><img src="http://www.w3.org/html/logo/badge/html5-badge-h-solo.png" width="47" height="48" alt="Check HTML5 Validity" title="Check HTML5 Validity"></a>');
-                        document.write('&nbsp;&nbsp;')
-                        document.write('<a href="http://jigsaw.w3.org/css-validator/validator?uri='+encodeURIComponent(document.URL)+'&profile=css3&usermedium=all&warning=1&vextwarning=&lang=en"><img src="images/css3-icon.png" height="48" width="48"></a>');
-                    </script>
-                </div>
-            </footer>
+    <script src="/js/tabs.js"></script>
+</head>
+<body>
+<div id="navbar">
+    <div class="grid">
+        <div class="unit one-of-five nav-title">
+            <h1 class="hush-title"><a href="/">hush</a></h1>
         </div>
-    </body>
+        <div class="unit four-of-five nav-items">
+            <ul>
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    <li><a class="flat-button flat-button-red flat-button-small" href="/logout">Logout</a></li>
+                {% endif %}
+                <li><a href="https://github.com/daniel-bell/hush"><i class="fa fa-github-alt fa-2x"></i></a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% block body %}
+{% endblock %}
+<div class="span-grid">
+    <footer>
+        <div class="panel">
+            Hush
+            <br/>
+            <script>
+                document.write('<a href="http://validator.w3.org/check?uri=' + encodeURIComponent(document.URL) + '&charset=(detect+automatically)&doctype=Inline&group=0&user-agent=W3C_Validator%2F1.3+http%3A%2F%2Fvalidator.w3.org%2Fservices"><img src="http://www.w3.org/html/logo/badge/html5-badge-h-solo.png" width="47" height="48" alt="Check HTML5 Validity" title="Check HTML5 Validity"></a>');
+                document.write('&nbsp;&nbsp;')
+                document.write('<a href="http://jigsaw.w3.org/css-validator/validator?uri=' + encodeURIComponent(document.URL) + '&profile=css3&usermedium=all&warning=1&vextwarning=&lang=en"><img src="images/css3-icon.png" height="48" width="48"></a>');
+            </script>
+        </div>
+    </footer>
+</div>
+</body>
 </html>
