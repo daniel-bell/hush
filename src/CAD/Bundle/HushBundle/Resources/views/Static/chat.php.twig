@@ -1,34 +1,55 @@
 {% extends 'HushBundle:Default:default.html.twig' %}
 
 {% block body -%}
-    <div id="chat-interface" class="span-grid landing-page">
-        <div id="friends" class="unit one-of-four panel">
-            <ul id="friends-list" class="unit span-grid">
-            </ul>
-            <div id="add-friend" class="unit span-grid">
-                <form id="add-friend-form" method="post" name="add_friend" onsubmit="return false;">
-                    <input type="text" value="" name="friend-name"/>
-                    <input type="button" class="flat-button flat-button-blue" value="Add" />
+<div class="container">
+    <div class="row">
+        <div id="friends" class="col-md-3">
+            <div class="row">
+                <ul id="friends-list" class="unit span-grid">
+                </ul>
+            </div>
+            <div id="add-friend" class="row">
+                <form id="add-friend-form" class="form-inline" role="form" method="post"
+                      name="add_friend" onsubmit="return false;">
+                    <div class="col-xs-12" style="width:100%">
+                        <div class="form-group">
+                            <input type="text" class="col-md-9" value="" placeholder="Friend's Name"
+                                   name="friend-name"/>
+                            <input type="button" class="btn btn-sm btn-primary" value="Add"/>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
-        <div id="chat" class="unit unit-right three-of-four panel">
-            <ul id="chat-list" class="unit span-grid">
+        <div id="chat" class="col-md-9">
+            <div class="row">
+                <ul id="chat-list">
 
-            </ul>
-
-            <div id="chat-controls" class="unit span-grid">
-                <form id="send-messages" method="post" name="send_message" onsubmit="return false;">
-                    <input type="text" value="" name="chat-text" />
-                    <input type="button" class="flat-button flat-button-green" value="Send" />
-                </form>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="chat-controls" class="unit span-grid">
+                        <form id="send-messages" method="post" name="send_message" class="form-horizontal form-inline"
+                              role="form"
+                              onsubmit="return false;">
+                            <div class="col-xs-12">
+                                <div class="form-group" style="width:100%">
+                                    <input type="text" class="col-md-11" value="" name="chat-text"/>
+                                    <input type="button" class="btn btn-sm btn-primary" value="Send"/>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                </div>
             </div>
         </div>
-    </div>
 
-    <script type="text/javascript" src="/js/chat.js"></script>
-    <script type="text/javascript">
-        fetchFriendsList();
-        fetchLatestMessages();
-    </script>
-{% endblock %}
+        <script type="text/javascript" src="/js/chat.js"></script>
+        <script type="text/javascript">
+            fetchFriendsList();
+            fetchLatestMessages();
+        </script>
+        {% endblock %}

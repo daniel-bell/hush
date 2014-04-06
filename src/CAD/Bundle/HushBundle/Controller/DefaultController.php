@@ -43,7 +43,7 @@ class DefaultController extends Controller
             'method' => 'POST',
         ));
 
-        $form->add('submit', 'submit', array('label' => 'Register', 'attr' => array('class' => 'flat-button flat-button-green')));
+        $form->add('submit', 'submit');
 
         return $form;
     }

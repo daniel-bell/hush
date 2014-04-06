@@ -1,61 +1,76 @@
 {% extends 'HushBundle:Default:default.html.twig' %}
 
 {% block body %}
-<div class="grid">
-		<div class="unit span-grid landing-page">
-			<div class="unit one-of-two">
-                <div class="panel">
-                    <p>
-                        Welcome to hush, a secure chat service designed to protect your conversations.
-                    </p>
-                    <p>
-                        Everything you say to your friends online is encrypted in your web browser before it is send to us.
-                    </p>
-                    <p>
-                        This means that even if someone wanted to eavesdrop on your conversations it would be impossible without access to either your, or your contact's computer.
-                    </p>
-                </div>
-			</div>
-			<div class="unit one-of-two unit-right">
-                <div class="panel">
-				{% for flashMessage in app.session.flashbag.get('notice') %}
-			    <div class="flash-notice">
-				        {{ flashMessage }}
-				    </div>
-				{% endfor %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="lead">
+                    Welcome to hush, a secure chat service designed to protect your conversations.
+                </p>
 
-				{% if error %}
-				    <div>{{ error.message }}</div>
-				{% endif %}
-                    <div id="tabContainer">
-                        <div class="tabs">
-                            <ul>
-                                <li id="tabHeader_1">Login</li>
-                                <li id="tabHeader_2">Register</li>
-                            </ul>
-                        </div>
-                        <div class="tabscontent">
-                            <div class="tabpage" id="tabpage_1">
-                                <h2>Login to hush</h2>
-                                <form action="{{ path('login_check') }}" method="post">
-                                        <label for="username">Username:</label>
-                                        <input type="text" id="username" name="_username" value="{{ last_username }}" /><br />
+                <p>
+                    Everything you say to your friends online is encrypted in your web browser before it is send to us.
+                </p>
 
-                                        <label for="password">Password:</label>
-                                        <input type="password" id="password" name="_password" /><br />
-
-                                        <input type="hidden" name="_csrf_token" value="{{  csrf_token('authenticate') }}" />
-                                        <button class="flat-button flat-button-green" type="submit">Login</button>
-                                </form>
-                            </div>
-                            <div class="tabpage" id="tabpage_2">
-                                <h2>Register to hush</h2>
-                                {{ form(register_form) }}
-                            </div>
-                        </div>
+                <p>
+                    This means that even if someone wanted to eavesdrop on your conversations it would be impossible
+                    without access to either your, or your contact's computer.
+                </p>
+            </div>
+            <div class="col-md-6">
+                {% for flashMessage in app.session.flashbag.get('notice') %}
+                    <div class="flash-notice">
+                        {{ flashMessage }}
                     </div>
-			</div>
-		</div>
-	</div>
+                {% endfor %}
+
+                {% if error %}
+                    <div>{{ error.message }}</div>
+                {% endif %}
+
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#login" data-toggle="tab">Login</a></li>
+                    <li><a href="#register" data-toggle="tab">Register</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane active" id="login">
+                        <h2>Login</h2>
+
+                        <form role="form" action="{{ path('login_check') }}" method="post">
+                            <div class="form-group">
+                                <label for="username" class="control-label required">Username:</label>
+                                <input type="text" id="username" name="_username" class="form-control"
+                                       value="{{ last_username }}"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="passwordv control-label required">Password:</label>
+                                <input type="password" id="password" class="form-control" name="_password"/>
+                            </div>
+
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}"/>
+                            <button class="btn btn-primary" type="submit">Login</button>
+                        </form>
+                    </div>
+                    <div class="tab-pane" id="register">
+                        <h2>Register</h2>
+
+                        {{ form(register_form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        $('#login a').click(function (e) {
+            e.preventDefault()
+            $(this).tab('show')
+        })
+
+        $('#register a').click(function (e) {
+            e.preventDefault()
+            $(this).tab('show')
+        })
+    </script>
 {% endblock %}
