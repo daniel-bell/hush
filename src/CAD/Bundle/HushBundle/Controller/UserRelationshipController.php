@@ -167,4 +167,50 @@ class UserRelationshipController extends Controller
             array('content-type' => 'text/html')
         );
     }
+
+    /**
+     * Deletes a UserRelationship entity.
+     * Takes the ID of a Users entity, not UserRelationship
+     *
+     * @Route("/delete/{id}", name="user_relationship_delete")
+     * @Method("POST")
+     * @Method("GET")
+     */
+    public function deleteAction($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        if ($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
+            $source_user = $this->get('security.context')->getToken()->getUser();
+            $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('id' => $id));
+            $checker_service = $this->get('relationship_checker');
+
+            if (!empty($target_user) && $checker_service->inRelationship($source_user, $target_user)) {
+                $relationship = $checker_service->getRelationships($source_user, $target_user);
+
+                $em->remove($relationship[0]);
+                $em->flush();
+
+                $response = new Response(
+                    'Friend request sent',
+                    Response::HTTP_OK,
+                    array('content-type' => 'text/plain')
+                );
+            } else {
+                $response = new Response(
+                    'You are not friends with this user',
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    array('content-type' => 'text/plain')
+                );
+            }
+        } else {
+            $response = new Response(
+                'You are not logged in',
+                Response::HTTP_FORBIDDEN,
+                array('content-type' => 'text/plain')
+            );
+        }
+
+        return $response;
+    }
 }
