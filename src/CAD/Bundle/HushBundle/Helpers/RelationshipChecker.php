@@ -12,7 +12,7 @@ class RelationshipChecker{
         $this->em = $em;
     }
 
-    public function inRelationship(Users $user1, Users $user2){
+    public function getRelationships(Users $user1, Users $user2){
         if($user1->getId() == $user2->getId()){
             return false;
         }
@@ -21,6 +21,12 @@ class RelationshipChecker{
         $check_query->setParameter('user1', $user1);
         $check_query->setParameter('user2', $user2);
         $entities = $check_query->getResult();
+
+        return $entities;
+    }
+
+    public function inRelationship(Users $user1, Users $user2){
+        $entities = $this->getRelationships($user1, $user2);
 
         if(empty($entities)){
             return false;
