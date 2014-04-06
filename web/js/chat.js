@@ -15,7 +15,7 @@ function addFriendListener() {
         friend = friendLis[i];
 
         if (friend.nodeName === "LI") {
-            friend.addEventListener("click", function() {
+            friend.addEventListener("click", function () {
 
                 if (this.classList) {
                     this.classList.add('active');
@@ -46,10 +46,10 @@ function padNumber(num) {
 }
 
 function fetchLatestMessages() {
-    if(activeTarget != -1){
+    if (activeTarget != -1) {
         var xmlHttp = new XMLHttpRequest();
 
-        xmlHttp.onreadystatechange = function() {
+        xmlHttp.onreadystatechange = function () {
             if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
                 var response = xmlHttp.responseText;
                 var messages = JSON.parse(response);
@@ -70,9 +70,9 @@ function fetchLatestMessages() {
 
                         var el_li = document.createElement("li");
                         el_li.className = "message-ul";
-                        el_li.innerHTML =   '<span class="message-time"><time date-time="' + date.toString() +'">' + dateString + '</time></span>' +
-                                            '<span class="sender">' + sender + ':</span>' +
-                                            '<span class="message-content">' + messageContent + '</span>';
+                        el_li.innerHTML = '<span class="message-time"><time date-time="' + date.toString() + '">' + dateString + '</time></span>' +
+                            '<span class="sender">' + sender + ':</span>' +
+                            '<span class="message-content">' + messageContent + '</span>';
 
                         // Append the converted object
                         chat_message.appendChild(el_li);
@@ -97,7 +97,7 @@ function fetchLatestMessages() {
 function fetchFriendsList() {
     var xmlHttp = new XMLHttpRequest();
 
-    xmlHttp.onreadystatechange = function() {
+    xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
             var response = xmlHttp.responseText;
             var friends = JSON.parse(response);
@@ -127,7 +127,7 @@ function fetchFriendsList() {
         }
     }
     xmlHttp.open("GET", "/user_relationship", true)
-    xmlHttp.send() 
+    xmlHttp.send()
 }
 
 /**
@@ -137,11 +137,9 @@ function sendMessage() {
     if (activeTarget > 0) {
         console.log("Send Message");
 
-        var chat_form, messageBox, messageText, xmlHttp, params;
+        var date, xmlHttp, params;
 
-        var chat_form = document.getElementById('send-messages');
-        messageBox = chat_form.children[0];
-        messageText = messageBox.value;
+        var messageText = $("#message-text").val();
         console.log(messageText);
 
         // TODO: Test override
@@ -149,39 +147,39 @@ function sendMessage() {
         // Check the box isn't just empty, or empty strings
         // TODO: Add some HTML5 validation
         if (messageText != "") {
-           xmlHttp = new XMLHttpRequest();
+            xmlHttp = new XMLHttpRequest();
 
-           xmlHttp.open('POST', '/messages/send', true);
-           xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+            xmlHttp.open('POST', '/messages/send', true);
+            xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
 
-           // Parameters
-           date = new Date();
+            // Parameters
+            date = new Date();
 
-           // Build up the parameters needed for the new Entity
-           params = {
-               "messageKey": "FIXME",
-               "sentTime": {
-                   "date": {
-                       "month": date.getMonth() + 1,
-                       "day": date.getDate(),
-                       "year": date.getFullYear()
-                   },
-                   "time": {
-                       "hour": date.getHours(),
-                       "minute": date.getMinutes()
-                   }
+            // Build up the parameters needed for the new Entity
+            params = {
+                "messageKey": "FIXME",
+                "sentTime": {
+                    "date": {
+                        "month": date.getMonth() + 1,
+                        "day": date.getDate(),
+                        "year": date.getFullYear()
+                    },
+                    "time": {
+                        "hour": date.getHours(),
+                        "minute": date.getMinutes()
+                    }
                 },
-               "messageContent": messageText,
-               "targetUser": activeTarget
-           }
+                "messageContent": messageText,
+                "targetUser": activeTarget
+            }
 
-           params = "json_str=" + JSON.stringify(params);
-           xmlHttp.send(params);
+            params = "json_str=" + JSON.stringify(params);
+            xmlHttp.send(params);
 
-           // Update the message list
-           fetchLatestMessages();
+            // Update the message list
+            fetchLatestMessages();
 
-            messageBox.value = "";
+            $("#message-text").val("");
         }
     }
 }
@@ -192,7 +190,7 @@ function sendMessage() {
 function getUserId() {
     xmlHttp = new XMLHttpRequest();
 
-    xmlHttp.onreadystatechange = function() {
+    xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
             current_user = xmlHttp.responseText;
         }
@@ -202,60 +200,38 @@ function getUserId() {
     xmlHttp.send();
 }
 
-function addFriend(){
-  var form, friend_box, friend_name, xmlHttp, params;
+function addFriend() {
+    var form, friend_name, xmlHttp, params;
 
-  form = document.getElementById("add-friend").children[0];
-  friend_box = form.elements["friend-name"];
+    var messageText = $("#friend-name").val();
 
-  friend_name = friend_box.value;
+    if (friend_name != "") {
+        xmlHttp = new XMLHttpRequest();
+        xmlHttp.open('POST', '/user_relationship/new', true);
+        xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
 
-  if (friend_name != "") {
-      xmlHttp = new XMLHttpRequest();
-      xmlHttp.open('POST', '/user_relationship/new', true);
-      xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        params = {
+            "target_username": messageText
+        }
 
-      params = {
-           "target_username": friend_name
-       }
-
-       xmlHttp.onreadystatechange = function() {
-          if (xmlHttp.readyState) {
-              var response = xmlHttp.responseText;
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState) {
+                var response = xmlHttp.responseText;
                 console.log(response);
             }
-       }
+        }
 
-       params = "json_str=" + JSON.stringify(params);
-       xmlHttp.send(params);
+        params = "json_str=" + JSON.stringify(params);
+        xmlHttp.send(params);
 
-       friend_box.value = "";
-  }
+        $("#friend-name").val("");
+    }
 }
 
 /**
  * Globally setup some listeners
  */
 getUserId();
-
-console.log("adding friend listener");
-var friend_form = document.getElementById('add-friend-form').elements[1];
-friend_form.addEventListener('click', addFriend);
-
-var chat_form = document.getElementById('send-messages');
-chat_form.elements[1].addEventListener('click', sendMessage);
-messageBox = chat_form.elements[0];
-
-messageBox.addEventListener('keypress', function(event) {
-    console.log("Enter");
-    if (event.which == 13 || event.keyCode == 13) {
-
-        chat_form.submit();
-        return true;
-    }
-
-    return false;
-})
 
 // Check messages every second
 var intervalId = window.setInterval(fetchLatestMessages, 3000);
