@@ -46,88 +46,64 @@ function padNumber(num) {
 }
 
 function fetchLatestMessages() {
-    if (activeTarget != -1) {
-        var xmlHttp = new XMLHttpRequest();
+    $.getJSON('/messages/inbox/' + activeTarget, function (messages) {
+        var chat_message = document.getElementById("chat-list");
 
-        xmlHttp.onreadystatechange = function () {
-            if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-                var response = xmlHttp.responseText;
-                var messages = JSON.parse(response);
+        // Reset the chat
+        chat_message.innerHTML = "";
+        messageList = [];
 
-                var chat_message = document.getElementById("chat-list");
+        for (var i in messages) {
+            // Only add new messages
+            if (messageList.indexOf(messages[i].id) < 0) {
+                var date = new Date(messages[i].sentTime.date.split(" ").join("T"));
+                var dateString = '' + padNumber(date.getHours()) + ':' + padNumber(date.getMinutes()) + ':' + padNumber(date.getSeconds());
+                var messageContent = messages[i].messageContent;
+                var sender = messages[i].sendUsername;
 
-                // Reset the chat
-                chat_message.innerHTML = "";
-                messageList = [];
+                var el_li = document.createElement("li");
+                el_li.className = "message-ul";
+                el_li.innerHTML = '<span class="message-time"><time date-time="' + date.toString() + '">' + dateString + '</time></span>' +
+                    '<span class="sender">' + sender + ':</span>' +
+                    '<span class="message-content">' + messageContent + '</span>';
 
-                for (var i in messages) {
-                    // Only add new messages
-                    if (messageList.indexOf(messages[i].id) < 0) {
-                        var date = new Date(messages[i].sentTime.date.split(" ").join("T"));
-                        var dateString = '' + padNumber(date.getHours()) + ':' + padNumber(date.getMinutes()) + ':' + padNumber(date.getSeconds());
-                        var messageContent = messages[i].messageContent;
-                        var sender = messages[i].sendUsername;
+                // Append the converted object
+                chat_message.appendChild(el_li);
 
-                        var el_li = document.createElement("li");
-                        el_li.className = "message-ul";
-                        el_li.innerHTML = '<span class="message-time"><time date-time="' + date.toString() + '">' + dateString + '</time></span>' +
-                            '<span class="sender">' + sender + ':</span>' +
-                            '<span class="message-content">' + messageContent + '</span>';
-
-                        // Append the converted object
-                        chat_message.appendChild(el_li);
-
-                        messageList.push(messages[i].id);
-                    }
-                }
-
+                messageList.push(messages[i].id);
             }
-
         }
-
-        xmlHttp.open("GET", "messages/inbox/" + activeTarget, true);
-        xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-        xmlHttp.send();
-    }
+    });
 }
 
 /**
  * Get the friend list for the current user
  */
 function fetchFriendsList() {
-    var xmlHttp = new XMLHttpRequest();
+    $.getJSON('/user_relationship', function (friends) {
+        // Build up the new <li> elements
+        var ul = document.getElementById('friends-list');
 
-    xmlHttp.onreadystatechange = function () {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-            var response = xmlHttp.responseText;
-            var friends = JSON.parse(response);
+        for (var i in friends) {
+            users = friends[i].users;
 
-            // Build up the new <li> elements
-            var ul = document.getElementById('friends-list');
+            for (var u in users) {
+                user = users[u];
 
-            for (var i in friends) {
-                users = friends[i].users;
+                if (user.id != current_user) {
+                    el = document.createElement("li");
+                    el.setAttribute('user-id', user.id);
+                    // TODO: Add a wee checkmark for accepting?
+                    el.innerHTML = user.username;
 
-                for (var u in users) {
-                    user = users[u];
-
-                    if (user.id != current_user) {
-                        el = document.createElement("li");
-                        el.setAttribute('user-id', user.id);
-                        // TODO: Add a wee checkmark for accepting?
-                        el.innerHTML = user.username;
-
-                        ul.appendChild(el);
-                    }
+                    ul.appendChild(el);
                 }
             }
-
-            // Load the friend listener
-            addFriendListener();
         }
-    }
-    xmlHttp.open("GET", "/user_relationship", true)
-    xmlHttp.send()
+
+        // Load the friend listener
+        addFriendListener();
+    });
 }
 
 /**
