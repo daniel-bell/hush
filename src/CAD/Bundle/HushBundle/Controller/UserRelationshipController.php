@@ -59,10 +59,13 @@ class UserRelationshipController extends Controller
      */
     public function createAction(Request $request)
     {
+        $response_code = Response::HTTP_INTERNAL_SERVER_ERROR;
+        
         $params = $request->request->get("json_str");
         $params = stripslashes($params);
         $relation_params = json_decode(trim($params, '"'));
         unset($params);
+
         $em = $this->getDoctrine()->getManager();
 
         // Check that there's a valid relationship type
@@ -92,28 +95,22 @@ class UserRelationshipController extends Controller
                 $em->flush();
 
                 // Everything is golden, respond with 200
-                $response = new Response(
-                    'Friend request sent',
-                    Response::HTTP_OK,
-                    array('content-type' => 'text/plain')
-                );
+                $response_text = 'Friend request sent';
+                $response_code = Response::HTTP_OK;
             } // We're already friends with the target
             else {
-                $response = new Response(
-                    'Already friends with this user: ' . $target_username,
-                    Response::HTTP_INTERNAL_SERVER_ERROR,
-                    array('content-type' => 'text/plain')
-                );
+                $response_text = 'Already friends with user';
             }
         } // No user found with that username
         else {
-            $response = new Response(
-                'Error',
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                array('content-type' => 'text/plain')
-            );
+            $response_text = 'Already friends with user';
         }
 
+        $response = new Response(
+            $response_text,
+            $response_code,
+            array('content-type' => 'text/plain')
+        );
         return $response;
     }
 
@@ -125,28 +122,16 @@ class UserRelationshipController extends Controller
      */
     public function confirmAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
+        // Everything is golden, respond with 200
+        $response_text = 'Friend request sent';
+        $response_code = Response::HTTP_OK;
 
-        $entity = $em->getRepository('HushBundle:UserRelationship')->find($id);
-        $curr_user = $this->get('security.context')->getToken()->getUser();
-
-        if ($entity) {
-            if ($entity->getRelationshipType() == "FRIEND_REQUEST") {
-                if (in_array($curr_user, $entity->getUsers())) {
-                    if ($curr_user != $entity->getCreator()) {
-                        $entity->setRelationshipType("FRIEND_CONFIRMED");
-                        $em->flush();
-                    }
-                }
-            }
-        }
-
-        // Something has gone wrong, respond with error
         $response = new Response(
-            'Content',
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            array('content-type' => 'text/html')
+            $response_text,
+            $response_code,
+            array('content-type' => 'text/plain')
         );
+        return $response;
     }
 
     /**
@@ -171,19 +156,18 @@ class UserRelationshipController extends Controller
             $em->remove($relationship[0]);
             $em->flush();
 
-            $response = new Response(
-                'Friend request sent',
-                Response::HTTP_OK,
-                array('content-type' => 'text/plain')
-            );
+            $response_text = 'Friend request sent';
+            $response_code = Response::HTTP_OK;
         } else {
-            $response = new Response(
-                'You are not friends with this user',
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                array('content-type' => 'text/plain')
-            );
+            $response_text = 'You are not friends with user';
+            $response_code = Response::HTTP_INTERNAL_SERVER_ERROR;
         }
 
+        $response = new Response(
+            $response_text,
+            $response_code,
+            array('content-type' => 'text/plain')
+        );
         return $response;
     }
 }
