@@ -60,50 +60,54 @@ class UserRelationshipController extends Controller
     public function createAction(Request $request)
     {
         $response_code = Response::HTTP_INTERNAL_SERVER_ERROR;
-        
-        $params = $request->request->get("json_str");
-        $params = stripslashes($params);
-        $relation_params = json_decode(trim($params, '"'));
-        unset($params);
 
-        $em = $this->getDoctrine()->getManager();
+        try {
+            $params = $request->request->get("json_str");
+            $params = stripslashes($params);
+            $relation_params = json_decode(trim($params, '"'));
+            unset($params);
 
-        // Check that there's a valid relationship type
-        $relationship_type = 'FRIEND_REQUEST';
-        $target_username = $relation_params->target_username;
+            $em = $this->getDoctrine()->getManager();
 
-        $source_user = $this->get('security.context')->getToken()->getUser();
-        $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('username' => $target_username));
+            // Check that there's a valid relationship type
+            $relationship_type = 'FRIEND_REQUEST';
+            $target_username = $relation_params->target_username;
 
-        if (!empty($target_user)) {
-            $checker_service = $this->get('relationship_checker');
+            $source_user = $this->get('security.context')->getToken()->getUser();
+            $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('username' => $target_username));
 
-            if (!$checker_service->inRelationship($source_user, $target_user)) {
-                $new_rel = new UserRelationship();
-                $new_rel->setCreatorUser($source_user);
+            if (!empty($target_user)) {
+                $checker_service = $this->get('relationship_checker');
 
-                $new_rel->setCreatorUserKey("creatorkey");
-                $new_rel->setTargetUserKey("unset");
+                if (!$checker_service->inRelationship($source_user, $target_user)) {
+                    $new_rel = new UserRelationship();
+                    $new_rel->setCreatorUser($source_user);
 
-                $new_rel->setRelationshipType($relationship_type);
-                $new_rel->setRelationshipKey("default");
+                    $new_rel->setCreatorUserKey("creatorkey");
+                    $new_rel->setTargetUserKey("unset");
 
-                $new_rel->addUser($source_user);
-                $new_rel->addUser($target_user);
+                    $new_rel->setRelationshipType($relationship_type);
+                    $new_rel->setRelationshipKey("default");
 
-                $em->persist($new_rel);
-                $em->flush();
+                    $new_rel->addUser($source_user);
+                    $new_rel->addUser($target_user);
 
-                // Everything is golden, respond with 200
-                $response_text = 'Friend request sent';
-                $response_code = Response::HTTP_OK;
-            } // We're already friends with the target
+                    $em->persist($new_rel);
+                    $em->flush();
+
+                    // Everything is golden, respond with 200
+                    $response_text = 'Friend request sent';
+                    $response_code = Response::HTTP_OK;
+                } // We're already friends with the target
+                else {
+                    $response_text = 'Already friends with user';
+                }
+            } // No user found with that username
             else {
                 $response_text = 'Already friends with user';
             }
-        } // No user found with that username
-        else {
-            $response_text = 'Already friends with user';
+        } catch (Exception $ex) {
+            $response_text = 'Error creating relationship: ' . $ex->getMessage();
         }
 
         $response = new Response(

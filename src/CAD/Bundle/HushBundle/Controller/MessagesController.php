@@ -30,6 +30,8 @@ class MessagesController extends Controller
      */
     public function sendAction(Request $request)
     {
+        $response_code = Response::HTTP_INTERNAL_SERVER_ERROR;
+
         try{
                 $entity = new Messages();
 
@@ -75,38 +77,26 @@ class MessagesController extends Controller
                         $em->flush();
 
                         // Everything worked, 200 response
-                        $response = new Response(
-                            'Message Sent',
-                            Response::HTTP_OK,
-                            array('content-type' => 'text/plain')
-                        );
+                        $response_text = 'Message sent';
+                        $response_code = Response::HTTP_OK;
                     }
                     else{
-                        $response = new Response(
-                            'You can\'t send a message to someone you\'re not friends with: ' . $target_user->getUsername(),
-                            Response::HTTP_INTERNAL_SERVER_ERROR,
-                            array('content-type' => 'text/plain')
-                        );
+                        $response_text = 'You cannot send a message to someone you are not friends with';
                     }
                 }
                 else{
-                    $response = new Response(
-                        'Sending message failed, target user does not exist',
-                        Response::HTTP_INTERNAL_SERVER_ERROR,
-                        array('content-type' => 'text/plain')
-                    );
+                    $response_text = 'You cannot send a message to someone you are not friends with';
                 }
             }
             catch(Exception $ex){
-                // Response 500 with the exception error
-                // Temporary until exceptions are indentified and caught
-                $response = new Response(
-                    'Error saving message: ' . $ex->getMessage(),
-                    Response::HTTP_INTERNAL_SERVER_ERROR,
-                    array('content-type' => 'text/plain')
-                );
+                $response_text = 'Error saving message: ' . $ex->getMessage();
             }
 
+        $response = new Response(
+            $response_text,
+            $response_code,
+            array('content-type' => 'text/plain')
+        );
         return $response;
     }
 
