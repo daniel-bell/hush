@@ -35,27 +35,18 @@ class UserRelationshipController extends Controller
      */
     public function indexAction()
     {
-        // Check if the user is logged in, if not 403
-        if ($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
-            $em = $this->getDoctrine()->getManager();
-            $curr_user = $this->get('security.context')->getToken()->getUser();
+        $em = $this->getDoctrine()->getManager();
+        $curr_user = $this->get('security.context')->getToken()->getUser();
 
-            $query = $em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users');
-            $query->setParameter('user_id', $curr_user);
-            $entities = $query->getResult();
+        $query = $em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE :user_id MEMBER OF rel.users');
+        $query->setParameter('user_id', $curr_user);
+        $entities = $query->getResult();
 
-            $serializer = $this->container->get('serializer');
-            $json_content = $serializer->serialize($entities, 'json');
+        $serializer = $this->container->get('serializer');
+        $json_content = $serializer->serialize($entities, 'json');
 
-            $response = new JsonResponse();
-            $response->setContent(utf8_decode($json_content));
-        } else {
-            $response = new Response(
-                '403 - Access Forbidden',
-                Response::HTTP_FORBIDDEN,
-                array('content-type' => 'text/html')
-            );
-        }
+        $response = new JsonResponse();
+        $response->setContent(utf8_decode($json_content));
 
         return $response;
     }
@@ -68,67 +59,57 @@ class UserRelationshipController extends Controller
      */
     public function createAction(Request $request)
     {
+        $params = $request->request->get("json_str");
+        $params = stripslashes($params);
+        $relation_params = json_decode(trim($params, '"'));
+        unset($params);
+        $em = $this->getDoctrine()->getManager();
 
-        if ($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
-            $params = $request->request->get("json_str");
-            $params = stripslashes($params);
-            $relation_params = json_decode(trim($params, '"'));
-            unset($params);
-            $em = $this->getDoctrine()->getManager();
+        // Check that there's a valid relationship type
+        $relationship_type = 'FRIEND_REQUEST';
+        $target_username = $relation_params->target_username;
 
-            // Check that there's a valid relationship type
-            $relationship_type = 'FRIEND_REQUEST';
-            $target_username = $relation_params->target_username;
+        $source_user = $this->get('security.context')->getToken()->getUser();
+        $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('username' => $target_username));
 
-            $source_user = $this->get('security.context')->getToken()->getUser();
-            $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('username' => $target_username));
+        if (!empty($target_user)) {
+            $checker_service = $this->get('relationship_checker');
 
-            if (!empty($target_user)) {
-                $checker_service = $this->get('relationship_checker');
+            if (!$checker_service->inRelationship($source_user, $target_user)) {
+                $new_rel = new UserRelationship();
+                $new_rel->setCreatorUser($source_user);
 
-                if (!$checker_service->inRelationship($source_user, $target_user)) {
-                    $new_rel = new UserRelationship();
-                    $new_rel->setCreatorUser($source_user);
+                $new_rel->setCreatorUserKey("creatorkey");
+                $new_rel->setTargetUserKey("unset");
 
-                    $new_rel->setCreatorUserKey("creatorkey");
-                    $new_rel->setTargetUserKey("unset");
+                $new_rel->setRelationshipType($relationship_type);
+                $new_rel->setRelationshipKey("default");
 
-                    $new_rel->setRelationshipType($relationship_type);
-                    $new_rel->setRelationshipKey("default");
+                $new_rel->addUser($source_user);
+                $new_rel->addUser($target_user);
 
-                    $new_rel->addUser($source_user);
-                    $new_rel->addUser($target_user);
+                $em->persist($new_rel);
+                $em->flush();
 
-                    $em->persist($new_rel);
-                    $em->flush();
-
-                    // Everything is golden, respond with 200
-                    $response = new Response(
-                        'Friend request sent',
-                        Response::HTTP_OK,
-                        array('content-type' => 'text/plain')
-                    );
-                } // We're already friends with the target
-                else {
-                    $response = new Response(
-                        'Already friends with this user: ' . $target_username,
-                        Response::HTTP_INTERNAL_SERVER_ERROR,
-                        array('content-type' => 'text/plain')
-                    );
-                }
-            } // No user found with that username
+                // Everything is golden, respond with 200
+                $response = new Response(
+                    'Friend request sent',
+                    Response::HTTP_OK,
+                    array('content-type' => 'text/plain')
+                );
+            } // We're already friends with the target
             else {
                 $response = new Response(
-                    'Error',
+                    'Already friends with this user: ' . $target_username,
                     Response::HTTP_INTERNAL_SERVER_ERROR,
                     array('content-type' => 'text/plain')
                 );
             }
-        } // User not logged in
+        } // No user found with that username
         else {
             $response = new Response(
-                'You are not logged in',
-                Response::HTTP_FORBIDDEN,
+                'Error',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
                 array('content-type' => 'text/plain')
             );
         }
@@ -180,33 +161,25 @@ class UserRelationshipController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        if ($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
-            $source_user = $this->get('security.context')->getToken()->getUser();
-            $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('id' => $id));
-            $checker_service = $this->get('relationship_checker');
+        $source_user = $this->get('security.context')->getToken()->getUser();
+        $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('id' => $id));
+        $checker_service = $this->get('relationship_checker');
 
-            if (!empty($target_user) && $checker_service->inRelationship($source_user, $target_user)) {
-                $relationship = $checker_service->getRelationships($source_user, $target_user);
+        if (!empty($target_user) && $checker_service->inRelationship($source_user, $target_user)) {
+            $relationship = $checker_service->getRelationships($source_user, $target_user);
 
-                $em->remove($relationship[0]);
-                $em->flush();
+            $em->remove($relationship[0]);
+            $em->flush();
 
-                $response = new Response(
-                    'Friend request sent',
-                    Response::HTTP_OK,
-                    array('content-type' => 'text/plain')
-                );
-            } else {
-                $response = new Response(
-                    'You are not friends with this user',
-                    Response::HTTP_INTERNAL_SERVER_ERROR,
-                    array('content-type' => 'text/plain')
-                );
-            }
+            $response = new Response(
+                'Friend request sent',
+                Response::HTTP_OK,
+                array('content-type' => 'text/plain')
+            );
         } else {
             $response = new Response(
-                'You are not logged in',
-                Response::HTTP_FORBIDDEN,
+                'You are not friends with this user',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
                 array('content-type' => 'text/plain')
             );
         }

@@ -77,8 +77,7 @@ class MessagesController extends Controller
      */
     public function sendAction(Request $request)
     {
-        if($this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') ){
-            try{
+        try{
                 $entity = new Messages();
 
                 // Grab the json_str from the POST request
@@ -154,14 +153,6 @@ class MessagesController extends Controller
                     array('content-type' => 'text/plain')
                 );
             }
-        }
-        else{
-            $response = new Response(
-                'You are not logged in.',
-                Response::HTTP_FORBIDDEN,
-                array('content-type' => 'text/plain')
-            );
-        }
 
         return $response;
     }
@@ -214,15 +205,6 @@ class MessagesController extends Controller
         $em = $this->getDoctrine()->getManager();
         $curr_user = $this->get('security.context')->getToken()->getUser();
         $from_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('id' => $id));
-
-        if (!$curr_user) {
-            // Just fire a 503 response
-            $response = new Response(
-                'Fail',
-                Response::HTTP_FORBIDDEN,
-                array('content-type' => 'text/html'));
-            return $response;
-        }
 
         if(!$from_user){
             $response = new Response(
