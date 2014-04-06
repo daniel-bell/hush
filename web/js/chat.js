@@ -123,11 +123,6 @@ function sendMessage() {
         // Check the box isn't just empty, or empty strings
         // TODO: Add some HTML5 validation
         if (messageText != "") {
-            xmlHttp = new XMLHttpRequest();
-
-            xmlHttp.open('POST', '/messages/send', true);
-            xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-
             // Parameters
             date = new Date();
 
@@ -148,12 +143,22 @@ function sendMessage() {
                 "messageContent": messageText,
                 "targetUser": activeTarget
             }
-
             params = "json_str=" + JSON.stringify(params);
-            xmlHttp.send(params);
 
-            // Update the message list
-            fetchLatestMessages();
+            var request = $.ajax({
+                type: 'POST',
+                url: '/messages/send',
+                data: params
+            });
+
+            request.done(function (){
+                // Update the message list
+                fetchLatestMessages();
+            });
+
+            request.fail(function (jqXHR, textStatus) {
+                console.log(jqXHR.responseText);
+            });
 
             $("#message-text").val("");
         }
