@@ -3,32 +3,17 @@
  */
 var messageList = [];
 var activeTarget = -1;
-var friendLis;
 var current_user = null;
 
 function addFriendListener() {
-    var friend;
-
-    friendLis = document.getElementById('friends-list').children;
-
-    for (var i in friendLis) {
-        friend = friendLis[i];
-
-        if (friend.nodeName === "LI") {
-            friend.addEventListener("click", function () {
-
-                if (this.classList) {
-                    this.classList.add('active');
-                }
-
-                // TODO: How do I remove?
-                this.setAttribute('class', "active");
-                var user_id = parseInt(this.getAttribute('user-id'));
-                activeTarget = user_id;
-                fetchLatestMessages();
-            });
-        }
-    }
+    $("#friends-list li").click(function () {
+        console.log(this);
+        $("#friends-list li").removeClass("active-friend");
+        $(this).removeClass("inactive-friend");
+        $(this).addClass("active-friend");
+        activeTarget = $(this).attr("user-id");
+        fetchLatestMessages();
+    });
 
 }
 
@@ -89,7 +74,7 @@ function fetchFriendsList() {
 
                 if (user.id != current_user) {
                     var new_item = $("#friends-list").append("<li user-id=\""
-                        + user.id + "\">" + user.username + "</li>");
+                        + user.id + "\" class=\"inactive-friend\">" + user.username + "</li>");
                 }
             }
         }
