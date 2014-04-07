@@ -21,7 +21,7 @@ security:
             security: false
 
         secured_area:
-            pattern:    ^/
+            pattern:    ^/(?!users/new)
             anonymous: ~
             form_login:
                 check_path: /login_check/
