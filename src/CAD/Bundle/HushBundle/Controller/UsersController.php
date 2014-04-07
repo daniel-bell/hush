@@ -22,15 +22,17 @@ class UsersController extends Controller
     /**
      * Creates a new Users entity.
      *
-     * @Route("/", name="users_create")
+     * @Route("/new", name="users_create")
      * @Method("POST")
-     * @Template("HushBundle:Default:index.html.twig")
      */
     public function createAction(Request $request)
     {
+        $flash = $this->get('braincrafted_bootstrap.flash');
+
         $entity = new Users();
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
+
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
@@ -50,7 +52,7 @@ class UsersController extends Controller
             $em->persist($entity);
             $em->flush();
 
-            $this->get('session')->getFlashBag()->add('notice','Your account has been created, you many now log in.');
+            $flash->success('Your account has been created, you many now log in.');
 
             return $this->redirect($this->generateUrl('hush_homepage'));
         }
@@ -59,8 +61,8 @@ class UsersController extends Controller
         $validation_errors = $validator->validate($entity);
 
         if (count($validation_errors) > 0) {
-            foreach($validation_errors as $val_error){
-                $this->get('session')->getFlashBag()->add('notice', $val_error->getMessage());;
+            foreach ($validation_errors as $val_error) {
+                $flash->error($val_error->getMessage());;
             }
         }
 
@@ -68,12 +70,12 @@ class UsersController extends Controller
     }
 
     /**
-    * Creates a form to create a Users entity.
-    *
-    * @param Users $entity The entity
-    *
-    * @return \Symfony\Component\Form\Form The form
-    */
+     * Creates a form to create a Users entity.
+     *
+     * @param Users $entity The entity
+     *
+     * @return \Symfony\Component\Form\Form The form
+     */
     private function createCreateForm(Users $entity)
     {
         $form = $this->createForm(new UsersType(), $entity, array(
@@ -93,109 +95,16 @@ class UsersController extends Controller
      * @Method("GET")
      * @Template()
      */
-    public function meAction() {
+    public function meAction()
+    {
         $me = $this->get('security.context')->getToken()->getUser()->getId();
         $response = null;
 
         if ($me != null) {
-          $response = new JsonResponse();
-          $response->setData($me);
-        } 
+            $response = new JsonResponse();
+            $response->setData($me);
+        }
 
         return $response;
-    }
-
-    /**
-    * Creates a form to edit a Users entity.
-    *
-    * @param Users $entity The entity
-    *
-    * @return \Symfony\Component\Form\Form The form
-    */
-    private function createEditForm(Users $entity)
-    {
-        $form = $this->createForm(new UsersType(), $entity, array(
-            'action' => $this->generateUrl('users_update', array('id' => $entity->getId())),
-            'method' => 'PUT',
-        ));
-
-        $form->add('submit', 'submit', array('label' => 'Update'));
-
-        return $form;
-    }
-    
-    /**
-     * Edits an existing Users entity.
-     *
-     * @Route("/{id}", name="users_update")
-     * @Method("PUT")
-     * @Template("HushBundle:Users:edit.html.twig")
-     */
-    public function updateAction(Request $request, $id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('HushBundle:Users')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Users entity.');
-        }
-
-        $editForm = $this->createEditForm($entity);
-        $editForm->handleRequest($request);
-
-        if ($editForm->isValid()) {
-            $em->flush();
-
-            return $this->redirect($this->generateUrl('users_edit', array('id' => $id)));
-        }
-
-        return array(
-            'entity'      => $entity,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        );
-    }
-    /**
-     * Deletes a Users entity.
-     *
-     * @Route("/{id}", name="users_delete")
-     * @Method("DELETE")
-     */
-    public function deleteAction(Request $request, $id)
-    {
-        $form = $this->createDeleteForm($id);
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $entity = $em->getRepository('HushBundle:Users')->find($id);
-
-            if (!$entity) {
-                throw $this->createNotFoundException('Unable to find Users entity.');
-            }
-
-            $em->remove($entity);
-            $em->flush();
-        }
-
-        return $this->redirect($this->generateUrl('users'));
-    }
-
-    /**
-     * Creates a form to delete a Users entity by id.
-     *
-     * @param mixed $id The entity id
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm($id)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('users_delete', array('id' => $id)))
-            ->setMethod('DELETE')
-            ->add('submit', 'submit', array('label' => 'Delete'))
-            ->getForm()
-        ;
     }
 }
