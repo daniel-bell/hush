@@ -81,9 +81,6 @@ function fetchLatestMessages() {
  */
 function fetchFriendsList() {
     $.getJSON('/user_relationship', function (friends) {
-        // Build up the new <li> elements
-        var ul = document.getElementById('friends-list');
-
         for (var i in friends) {
             users = friends[i].users;
 
@@ -91,12 +88,8 @@ function fetchFriendsList() {
                 user = users[u];
 
                 if (user.id != current_user) {
-                    el = document.createElement("li");
-                    el.setAttribute('user-id', user.id);
-                    // TODO: Add a wee checkmark for accepting?
-                    el.innerHTML = user.username;
-
-                    ul.appendChild(el);
+                    var new_item = $("#friends-list").append("<li user-id=\""
+                        + user.id + "\">" + user.username + "</li>");
                 }
             }
         }
@@ -151,7 +144,7 @@ function sendMessage() {
                 data: params
             });
 
-            request.done(function (){
+            request.done(function () {
                 // Update the message list
                 fetchLatestMessages();
             });
