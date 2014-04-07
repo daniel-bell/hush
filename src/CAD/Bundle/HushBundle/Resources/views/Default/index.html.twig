@@ -18,14 +18,10 @@
                 </p>
             </div>
             <div class="col-md-6">
-                {% for flashMessage in app.session.flashbag.get('notice') %}
-                    <div class="flash-notice">
-                        {{ flashMessage }}
-                    </div>
-                {% endfor %}
+                {% include 'BraincraftedBootstrapBundle::flash.html.twig' %}
 
                 {% if error %}
-                    <div>{{ error.message }}</div>
+                    <div class="alert alert-danger">{{ error.message }}</div>
                 {% endif %}
 
                 <ul class="nav nav-tabs">
@@ -44,7 +40,7 @@
                                        value="{{ last_username }}"/>
                             </div>
                             <div class="form-group">
-                                <label for="passwordv control-label required">Password:</label>
+                                <label for="password control-label required">Password:</label>
                                 <input type="password" id="password" class="form-control" name="_password"/>
                             </div>
 
@@ -56,6 +52,7 @@
                         <h2>Register</h2>
 
                         {{ form(register_form) }}
+                        {{ form_errors(register_form, { 'global_errors': true }) }}
                     </div>
                 </div>
             </div>

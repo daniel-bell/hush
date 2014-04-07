@@ -35,6 +35,6 @@ class UsersType extends AbstractType
      */
     public function getName()
     {
-        return 'register';
+        return 'cad_bundle_hushbundle_users';
     }
 }
