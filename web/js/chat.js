@@ -14,7 +14,6 @@ function addFriendListener() {
         activeTarget = $(this).attr("user-id");
         fetchLatestMessages();
     });
-
 }
 
 /**
@@ -147,16 +146,14 @@ function sendMessage() {
  * Setup the global current_user from the users endpoint
  */
 function getUserId() {
-    xmlHttp = new XMLHttpRequest();
+    var request = $.ajax({
+        type: 'GET',
+        url: '/users/me'
+    });
 
-    xmlHttp.onreadystatechange = function () {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-            current_user = xmlHttp.responseText;
-        }
-    }
-
-    xmlHttp.open('GET', "/users/me", true);
-    xmlHttp.send();
+    request.done(function(data){
+       current_user = data;
+    });
 }
 
 function addFriend() {
