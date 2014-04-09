@@ -7,10 +7,34 @@ var current_user = null;
 
 function addFriendListener() {
     $("#friends-list li").click(function () {
-        console.log(this);
         $("#friends-list li").removeClass("active-friend");
+
         $(this).removeClass("inactive-friend");
         $(this).addClass("active-friend");
+        $("#delete-friend-link").remove();
+        $(this).prepend("<a id=\"delete-friend-link\" href=\"#\"><span class=\"glyphicon glyphicon-remove\"></span></a>");
+
+        $("#delete-friend-link").click(function () {
+            var confirmation = confirm("Are you sure you want to remove " + $(this).parent().text() + " as a friend?\nWarning, all of your messages will be permanently deleted!");
+
+            if (confirmation === true) {
+                console.log($(this).parent().attr("user-id"));
+
+                var request = $.ajax({
+                    type: 'GET',
+                    url: '/user_relationship/delete/' + $(this).parent().attr("user-id")
+                });
+
+                request.done(function () {
+                    fetchFriendsList();
+                });
+
+                request.fail(function (jqXHR, textStatus) {
+                    console.log(jqXHR.responseText);
+                });
+            }
+        });
+
         activeTarget = $(this).attr("user-id");
         fetchLatestMessages();
     });
@@ -65,6 +89,8 @@ function fetchLatestMessages() {
  */
 function fetchFriendsList() {
     $.getJSON('/user_relationship', function (friends) {
+        $("#friends-list").html("");
+
         for (var i in friends) {
             users = friends[i].users;
 
@@ -151,8 +177,8 @@ function getUserId() {
         url: '/users/me'
     });
 
-    request.done(function(data){
-       current_user = data;
+    request.done(function (data) {
+        current_user = data;
     });
 }
 
@@ -171,6 +197,10 @@ function addFriend() {
             type: 'POST',
             url: '/user_relationship/new',
             data: params
+        });
+
+        request.done(function (data) {
+            fetchFriendsList();
         });
 
         request.fail(function (jqXHR, textStatus) {
