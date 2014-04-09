@@ -5,19 +5,22 @@ namespace CAD\Bundle\HushBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use CAD\Bundle\HushBundle\Entity\Users;
 use JMS\Serializer\Annotation\Type;
-use JMS\Serializer\nnotation\Expose;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
 
 /**
  * UserRelationship
  *
  * @ORM\Table(name="relationships")})
  * @ORM\Entity
+ * @ExclusionPolicy("all")
  */
 class UserRelationship
 {
     /**
      * @ORM\ManyToMany(targetEntity="Users")
      * @ORM\JoinTable(name="user_relationship")
+     * @Expose
      */
     private $users;
 
@@ -29,6 +32,7 @@ class UserRelationship
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="creator_user_id", referencedColumnName="id")
      * })
+     * @Expose
      */
     private $creator_user;
 
@@ -36,6 +40,7 @@ class UserRelationship
      * @var string
      *
      * @ORM\Column(name="relationship_key", type="string", length=256, nullable=false)
+     * @Expose
      */
     private $relationshipKey;
 
@@ -43,6 +48,7 @@ class UserRelationship
      * @var string
      *
      * @ORM\Column(name="creator_user_key", type="string", length=256, nullable=false)
+     * @Expose
      */
     private $creatorUserKey;
 
@@ -50,6 +56,7 @@ class UserRelationship
      * @var string
      *
      * @ORM\Column(name="target_user_key", type="string", length=256, nullable=false)
+     * @Expose
      */
     private $targetUserKey;
 
@@ -57,6 +64,7 @@ class UserRelationship
      * @var string
      *
      * @ORM\Column(name="relationship_type", type="string", length=30, nullable=false)
+     * @Expose
      */
     private $relationshipType;
 
@@ -66,6 +74,7 @@ class UserRelationship
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Expose
      */
     private $id;
 
