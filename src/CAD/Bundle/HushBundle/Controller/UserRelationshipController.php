@@ -12,15 +12,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CAD\Bundle\HushBundle\Entity\UserRelationship;
 use CAD\Bundle\HushBundle\Form\UserRelationshipType;
-use JMS\Serializer\Annotation\ExclusionPolicy;
-use JMS\Serializer\Annotation\Exclude;
 use CAD\Bundle\HushBundle\Helpers\RelationshipChecker;
 
 /**
  * UserRelationship controller.
  *
  * @Route("/user_relationship")
- * @ExclusionPolicy("none")
  *
  */
 class UserRelationshipController extends Controller
@@ -122,13 +119,49 @@ class UserRelationshipController extends Controller
      * Confirms a UserRelationship entity.
      *
      * @Route("/confirm/{id}", name="user_relationship_confirm")
-     * @Method("POST")
+     * @Method("GET")
      */
     public function confirmAction($id)
     {
-        // Everything is golden, respond with 200
-        $response_text = 'Friend request sent';
-        $response_code = Response::HTTP_OK;
+        $response_code = Response::HTTP_INTERNAL_SERVER_ERROR;
+
+        $em = $this->getDoctrine()->getManager();
+        $source_user = $this->get('security.context')->getToken()->getUser();
+        $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('id' => $id));
+
+        if (!empty($target_user)) {
+            $checker_service = $this->get('relationship_checker');
+
+            if ($checker_service->inRelationship($source_user, $target_user)) {
+                $relationships = $checker_service->getRelationships($source_user, $target_user);
+
+                if($relationships[0]->getRelationshipType() == "FRIEND_REQUEST"){
+                    if(!$relationships[0]->getCreatorUser()->getId() == $source_user->getId()){
+                        $response_code = Response::HTTP_OK;
+                        $response_text = "Friendship accepted.";
+                        $relationships[0]->setRelationshipType("FRIEND");
+                        $em->flush();
+                    }
+                    else{
+                        $response_text = 'You cannot accept friend requests that you create.';
+                    }
+                }
+                else{
+                    if($relationships[0]->getRelationshipType() == "FRIEND"){
+                        $response_text = 'You are already friends with this user.';
+                    }
+                    else{
+                        $response_text = 'Error accepting relationship.';
+                    }
+                }
+            }
+            else{
+                $response_text = 'Error accepting relationship.';
+            }
+        }
+        else{
+            $response_text = 'Error accepting relationship.';
+        }
 
         $response = new Response(
             $response_text,
