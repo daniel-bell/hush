@@ -4,9 +4,55 @@
     <div class="container-fluid">
         <div class="row">
             <div id="friends" class="col-md-3">
+
                 <div class="row">
-                    <ul id="friends-list" class="unit span-grid">
-                    </ul>
+                    <div class="panel-group" id="accordion">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#friends-collapse">
+                                        Friends
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                        <div id="friends-collapse" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <ul id="friends-list" class="list-group">
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#request-collapse">
+                                        Friend Requests
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                        <div id="request-collapse" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <ul id="friend-request-list" class="list-group">
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#blocked-collapse">
+                                        Blocked Users
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                        <div id="blocked-collapse" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <ul id="blocked-users-list" class="list-group">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="add-friend" class="row">
                     <form id="add-friend-form" class="form-inline" role="form" method="post"
