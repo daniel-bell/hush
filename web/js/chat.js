@@ -99,7 +99,7 @@ function fetchFriendsList() {
 
                 if (user.id != current_user) {
                     var new_item = $("#friends-list").append("<li user-id=\""
-                        + user.id + "\" class=\"inactive-friend\">" + user.username + "</li>");
+                        + user.id + "\" class=\"list-group-item inactive-friend\">" + user.username + "</li>");
                 }
             }
         }
