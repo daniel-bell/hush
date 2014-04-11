@@ -32,40 +32,40 @@ class MessagesController extends Controller
     {
         $response_code = Response::HTTP_INTERNAL_SERVER_ERROR;
 
-        try{
-                $entity = new Messages();
+        try {
+            $entity = new Messages();
 
-                // Grab the json_str from the POST request
-                $params = $request->request->get("json_str");
-                $params = stripslashes($params);
-                $message_params = json_decode(trim($params, '"'));
-                unset($params);
+            // Grab the json_str from the POST request
+            $params = $request->request->get("json_str");
+            $params = stripslashes($params);
+            $message_params = json_decode(trim($params, '"'));
+            unset($params);
 
-                $entity->setMessageContent($message_params->messageContent);
+            $entity->setMessageContent($message_params->messageContent);
 
-                $date = $message_params->sentTime->date;
-                $time = $message_params->sentTime->time;
+            $date = $message_params->sentTime->date;
+            $time = $message_params->sentTime->time;
 
-                // Create a date from a mangled set of strings
-                $entity->setSentTime(new \DateTime(
-                  $date->year . '-' .
-                  $date->month . '-' .
-                  $date->day . ' ' .
-                  $time->hour . ':' .
-                  $time->minute));
+            // Create a date from a mangled set of strings
+            $entity->setSentTime(new \DateTime(
+                $date->year . '-' .
+                $date->month . '-' .
+                $date->day . ' ' .
+                $time->hour . ':' .
+                $time->minute));
 
-                $em = $this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
 
-                $source_user = $this->get('security.context')->getToken()->getUser();
-                $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('id' => $message_params->targetUser));
+            $source_user = $this->get('security.context')->getToken()->getUser();
+            $target_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('id' => $message_params->targetUser));
 
-                // Error if the target user does not exist
-                if($target_user != null){
-                    // Check that the source and target user are in a relationship
-                    $checker_service = $this->get('relationship_checker');
-                    if($checker_service->inRelationship($source_user, $target_user)){
-                        $relationship = $checker_service->getRelationships($source_user, $target_user);
-
+            // Error if the target user does not exist
+            if ($target_user != null) {
+                // Check that the source and target user are in a relationship
+                $checker_service = $this->get('relationship_checker');
+                if ($checker_service->inRelationship($source_user, $target_user)) {
+                    $relationship = $checker_service->getRelationships($source_user, $target_user);
+                    if ($relationship[0]->getRelationshipType() == "FRIEND") {
                         $entity->setTargetUser($target_user);
                         $entity->setsendUser($source_user);
                         $entity->setMessageKey($message_params->messageKey);
@@ -79,18 +79,18 @@ class MessagesController extends Controller
                         // Everything worked, 200 response
                         $response_text = 'Message sent';
                         $response_code = Response::HTTP_OK;
+                    } else {
+                        $response_text = 'The other party has not accepted your friend request.';
                     }
-                    else{
-                        $response_text = 'You cannot send a message to someone you are not friends with';
-                    }
-                }
-                else{
+                } else {
                     $response_text = 'You cannot send a message to someone you are not friends with';
                 }
+            } else {
+                $response_text = 'You cannot send a message to someone you are not friends with';
             }
-            catch(Exception $ex){
-                $response_text = 'Error saving message: ' . $ex->getMessage();
-            }
+        } catch (Exception $ex) {
+            $response_text = 'Error saving message: ' . $ex->getMessage();
+        }
 
         $response = new Response(
             $response_text,
@@ -113,7 +113,7 @@ class MessagesController extends Controller
         $curr_user = $this->get('security.context')->getToken()->getUser();
         $from_user = $em->getRepository('CAD\Bundle\HushBundle\Entity\Users')->findOneBy(array('id' => $id));
 
-        if(!$from_user){
+        if (!$from_user) {
             $response = new Response(
                 'No relationship',
                 Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -124,7 +124,7 @@ class MessagesController extends Controller
         $checker_service = $this->get('relationship_checker');
         $relationship = $checker_service->getRelationships($curr_user, $from_user);
 
-        if(empty($relationship)){
+        if (empty($relationship)) {
             $response = new Response(
                 'No relationship with user',
                 Response::HTTP_INTERNAL_SERVER_ERROR,
