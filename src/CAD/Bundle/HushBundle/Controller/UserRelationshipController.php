@@ -136,7 +136,7 @@ class UserRelationshipController extends Controller
                 $relationships = $checker_service->getRelationships($source_user, $target_user);
 
                 if($relationships[0]->getRelationshipType() == "FRIEND_REQUEST"){
-                    if(!$relationships[0]->getCreatorUser()->getId() == $source_user->getId()){
+                    if($relationships[0]->getCreatorUser()->getId() != $source_user->getId()){
                         $response_code = Response::HTTP_OK;
                         $response_text = "Friendship accepted.";
                         $relationships[0]->setRelationshipType("FRIEND");
