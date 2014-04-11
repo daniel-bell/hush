@@ -38,6 +38,29 @@ function addFriendListener() {
         activeTarget = $(this).attr("user-id");
         fetchLatestMessages();
     });
+
+    $("#friend-request-list li").click(function () {
+        $("#confirm-friend-link").remove();
+        $(this).prepend("<a id=\"confirm-friend-link\" href=\"#\"><span class=\"glyphicon glyphicon-ok\"></span></a>");
+
+        $("#confirm-friend-link").click(function () {
+            var confirmation = confirm("Are you sure you want to accept " + $(this).parent().text() + " as a friend?");
+            if (confirmation === true) {
+                var request = $.ajax({
+                    type: 'GET',
+                    url: '/user_relationship/confirm/' + $(this).parent().attr("user-id")
+                });
+
+                request.done(function () {
+                    fetchFriendsList();
+                });
+
+                request.fail(function (jqXHR, textStatus) {
+                    console.log(jqXHR.responseText);
+                })
+            }
+        });
+    });
 }
 
 /**
@@ -90,6 +113,7 @@ function fetchLatestMessages() {
 function fetchFriendsList() {
     $.getJSON('/user_relationship', function (friends) {
         $("#friends-list").html("");
+        $("#friend-request-list").html("");
 
         for (var i in friends) {
             users = friends[i].users;
