@@ -98,8 +98,15 @@ function fetchFriendsList() {
                 user = users[u];
 
                 if (user.id != current_user) {
-                    var new_item = $("#friends-list").append("<li user-id=\""
-                        + user.id + "\" class=\"list-group-item inactive-friend\">" + user.username + "</li>");
+                    if (friends[i].relationship_type == "FRIEND") {
+                        $("#friends-list").append("<li user-id=\""
+                            + user.id + "\" class=\"list-group-item inactive-friend\">" + user.username + "</li>");
+                    }
+                    else if (friends[i].relationship_type == "FRIEND_REQUEST") {
+                        console.log("friend request");
+                        $("#friend-request-list").append("<li user-id=\""
+                            + user.id + "\" class=\"list-group-item inactive-friend\">" + user.username + "</li>");
+                    }
                 }
             }
         }
