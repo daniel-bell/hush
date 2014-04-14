@@ -25,6 +25,14 @@ class RelationshipChecker{
         return $entities;
     }
 
+    public function getCreatedRelationships(Users $user1){
+        $check_query = $this->em->createQuery('SELECT rel from HushBundle:UserRelationship rel WHERE rel.creator_user=:user1');
+        $check_query->setParameter('user1', $user1);
+        $entities = $check_query->getResult();
+
+        return $entities;
+    }
+
     public function inRelationship(Users $user1, Users $user2){
         $entities = $this->getRelationships($user1, $user2);
 

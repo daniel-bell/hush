@@ -76,28 +76,40 @@ class UserRelationshipController extends Controller
             if (!empty($target_user)) {
                 $checker_service = $this->get('relationship_checker');
 
-                if (!$checker_service->inRelationship($source_user, $target_user)) {
-                    $new_rel = new UserRelationship();
-                    $new_rel->setCreatorUser($source_user);
+                $created_relationships = $checker_service->getCreatedRelationships($source_user);
+                $request_count = 0;
+                foreach ($created_relationships as $rel) {
+                    if ($rel->getRelationshipType() == "FRIEND_REQUEST") {
+                        $request_count += 1;
+                    }
+                }
 
-                    $new_rel->setCreatorUserKey("creatorkey");
-                    $new_rel->setTargetUserKey("unset");
+                if ($request_count < 10) {
+                    if (!$checker_service->inRelationship($source_user, $target_user)) {
+                        $new_rel = new UserRelationship();
+                        $new_rel->setCreatorUser($source_user);
 
-                    $new_rel->setRelationshipType($relationship_type);
-                    $new_rel->setRelationshipKey("default");
+                        $new_rel->setCreatorUserKey("creatorkey");
+                        $new_rel->setTargetUserKey("unset");
 
-                    $new_rel->addUser($source_user);
-                    $new_rel->addUser($target_user);
+                        $new_rel->setRelationshipType($relationship_type);
+                        $new_rel->setRelationshipKey("default");
 
-                    $em->persist($new_rel);
-                    $em->flush();
+                        $new_rel->addUser($source_user);
+                        $new_rel->addUser($target_user);
 
-                    // Everything is golden, respond with 200
-                    $response_text = 'Friend request sent';
-                    $response_code = Response::HTTP_OK;
-                } // We're already friends with the target
-                else {
-                    $response_text = 'Already friends with user';
+                        $em->persist($new_rel);
+                        $em->flush();
+
+                        // Everything is golden, respond with 200
+                        $response_text = 'Friend request sent';
+                        $response_code = Response::HTTP_OK;
+                    } // We're already friends with the target
+                    else {
+                        $response_text = 'Already friends with user';
+                    }
+                } else {
+                    $response_text = 'You cannot make more than 10 friendship requests at once.';
                 }
             } // No user found with that username
             else {
@@ -135,31 +147,26 @@ class UserRelationshipController extends Controller
             if ($checker_service->inRelationship($source_user, $target_user)) {
                 $relationships = $checker_service->getRelationships($source_user, $target_user);
 
-                if($relationships[0]->getRelationshipType() == "FRIEND_REQUEST"){
-                    if($relationships[0]->getCreatorUser()->getId() != $source_user->getId()){
+                if ($relationships[0]->getRelationshipType() == "FRIEND_REQUEST") {
+                    if ($relationships[0]->getCreatorUser()->getId() != $source_user->getId()) {
                         $response_code = Response::HTTP_OK;
-                        $response_text = "Friendship accepted.";
+                        $response_text = "Friendship accepted";
                         $relationships[0]->setRelationshipType("FRIEND");
                         $em->flush();
-                    }
-                    else{
+                    } else {
                         $response_text = 'You cannot accept friend requests that you create.';
                     }
-                }
-                else{
-                    if($relationships[0]->getRelationshipType() == "FRIEND"){
+                } else {
+                    if ($relationships[0]->getRelationshipType() == "FRIEND") {
                         $response_text = 'You are already friends with this user.';
-                    }
-                    else{
+                    } else {
                         $response_text = 'Error accepting relationship.';
                     }
                 }
-            }
-            else{
+            } else {
                 $response_text = 'Error accepting relationship.';
             }
-        }
-        else{
+        } else {
             $response_text = 'Error accepting relationship.';
         }
 
@@ -179,7 +186,8 @@ class UserRelationshipController extends Controller
      * @Method("POST")
      * @Method("GET")
      */
-    public function deleteAction($id)
+    public
+    function deleteAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
