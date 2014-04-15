@@ -41,6 +41,9 @@ function addFriendListener() {
 
     $("#friend-request-list li").click(function () {
         $("#confirm-friend-link").remove();
+        $("#delete-friend-link").remove();
+
+        $(this).prepend("<a id=\"delete-request-link\" href=\"#\"><span class=\"glyphicon glyphicon-remove\"></span></a>");
         $(this).prepend("<a id=\"confirm-friend-link\" href=\"#\"><span class=\"glyphicon glyphicon-ok\"></span></a>");
 
         $("#confirm-friend-link").click(function () {
@@ -49,6 +52,24 @@ function addFriendListener() {
                 var request = $.ajax({
                     type: 'GET',
                     url: '/user_relationship/confirm/' + $(this).parent().attr("user-id")
+                });
+
+                request.done(function () {
+                    fetchFriendsList();
+                });
+
+                request.fail(function (jqXHR, textStatus) {
+                    console.log(jqXHR.responseText);
+                })
+            }
+        });
+
+        $("#delete-request-link").click(function () {
+            var confirmation = confirm("Are you sure you want to delete the friend request with" + $(this).parent().text() + "?");
+            if (confirmation === true) {
+                var request = $.ajax({
+                    type: 'GET',
+                    url: '/user_relationship/delete/' + $(this).parent().attr("user-id")
                 });
 
                 request.done(function () {

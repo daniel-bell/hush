@@ -84,7 +84,7 @@ class UserRelationshipController extends Controller
                     }
                 }
 
-                if ($request_count < 10) {
+                if ($request_count < 11) {
                     if (!$checker_service->inRelationship($source_user, $target_user)) {
                         $new_rel = new UserRelationship();
                         $new_rel->setCreatorUser($source_user);

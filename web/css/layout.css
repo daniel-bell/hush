@@ -3,24 +3,29 @@ body {
     padding-top: 80px;
 }
 
-#friends-list{
+#friends-list {
     list-style: none;
 }
 
-.active-friend{
+.active-friend {
     font-weight: bold;
 }
 
-.inactive-friend{
+.inactive-friend {
     font-weight: normal;
 }
 
-#delete-friend-link{
-    color:#ff0000;
-    margin-right:5px;
+#delete-friend-link {
+    color: #ff0000;
+    margin-right: 5px;
 }
 
-#confirm-friend-link{
-    color:#32cd32;
-    margin-right:5px;
+#confirm-friend-link {
+    color: #32cd32;
+    margin-right: 5px;
+}
+
+#delete-request-link {
+    color: #ff0000;
+    margin-right: 5px;
 }
